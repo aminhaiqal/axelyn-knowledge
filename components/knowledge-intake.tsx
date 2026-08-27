@@ -116,13 +116,13 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
 
             {state.status === "success" ? (
               <div
-                aria-live="polite"
                 className={cn(
                   "grid gap-4 rounded-[28px] border px-5 py-5 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center",
                   state.extractionStatus === "SUCCEEDED"
                     ? "border-emerald-200/80 bg-emerald-50/80"
                     : "border-amber-200/80 bg-amber-50/85",
                 )}
+                role="status"
               >
                 <span
                   aria-hidden="true"

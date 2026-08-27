@@ -5,14 +5,18 @@ export const surfaceClassName =
   "rounded-[28px] border border-slate-200/80 bg-white/78 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm";
 
 export function Surface({
+  as: Component = "section",
   children,
   className,
   ...props
-}: React.ComponentProps<"section"> & { children: ReactNode }) {
+}: React.ComponentProps<"section"> & {
+  as?: "article" | "section";
+  children: ReactNode;
+}) {
   return (
-    <section className={cn(surfaceClassName, className)} {...props}>
+    <Component className={cn(surfaceClassName, className)} {...props}>
       {children}
-    </section>
+    </Component>
   );
 }
 

@@ -51,6 +51,7 @@ export default async function Inbox({
 
               return (
                 <Surface
+                  as="article"
                   className="grid gap-6 p-6 xl:grid-cols-[minmax(0,1fr)_300px]"
                   key={node.id}
                 >
