@@ -13,6 +13,7 @@ export default async function RetrievalPage({
 }) {
   const operator = await requireOperator();
   const workspace = workspaceFrom((await searchParams).workspace);
+
   return (
     <AdminShell operator={operator} workspace={workspace}>
       <PageHeader
@@ -20,9 +21,7 @@ export default async function RetrievalPage({
         title="Retrieval lab"
         description="Inspect semantic and lexical seeds, bounded graph activation, trust-aware reranking, contradictions, provenance, and the exact context pack consumers receive."
       />
-      <div className="content-width">
-        <RetrievalDebugger workspace={workspace} />
-      </div>
+      <RetrievalDebugger workspace={workspace} />
     </AdminShell>
   );
 }

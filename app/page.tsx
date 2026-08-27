@@ -6,6 +6,17 @@ import { workspaceFrom } from "@/src/ui/workspace";
 import { AdminShell } from "@/components/admin-shell";
 import { PageHeader } from "@/components/page-header";
 import { TrustBadge } from "@/components/trust-badge";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { EmptyState, MetricCard, SectionHeader, Surface } from "@/components/ui/workspace";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -26,137 +37,166 @@ export default async function Dashboard({
         title="What the system currently remembers"
         description="A trust-aware register of reusable knowledge, pending judgment, and failed extraction work. Editorial approval and factual verification remain separate here."
         actions={
-          <div className="header-actions">
-            <Link className="button secondary" href={`/inbox?workspace=${workspace}`}>
+          <>
+            <Link
+              className={cn(
+                buttonVariants({ size: "lg", variant: "outline" }),
+                "rounded-full border-slate-200 bg-white/80 px-4",
+              )}
+              href={`/inbox?workspace=${workspace}`}
+            >
               Review inbox
             </Link>
-            <Link className="button" href={`/add?workspace=${workspace}`}>
+            <Link
+              className={cn(buttonVariants({ size: "lg" }), "rounded-full px-4")}
+              href={`/add?workspace=${workspace}`}
+            >
               Add knowledge
             </Link>
-          </div>
+          </>
         }
       />
-      <div className="content-width">
-        <section className="stat-register" aria-label="Knowledge totals">
-          <div>
-            <span>Total nodes</span>
-            <strong>{Number(totals.total ?? 0)}</strong>
-          </div>
-          <div>
-            <span>Awaiting review</span>
-            <strong>{Number(totals.proposed ?? 0)}</strong>
-          </div>
-          <div>
-            <span>Active memory</span>
-            <strong>{Number(totals.active ?? 0)}</strong>
-          </div>
-          <div>
-            <span>Extraction failures</span>
-            <strong>{dashboard.extraction_failures.length}</strong>
-          </div>
+
+      <section aria-label="Knowledge totals" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <MetricCard label="Total nodes" value={Number(totals.total ?? 0)} />
+        <MetricCard label="Awaiting review" value={Number(totals.proposed ?? 0)} />
+        <MetricCard label="Active memory" value={Number(totals.active ?? 0)} />
+        <MetricCard
+          description="Failed extraction attempts still preserved at the source layer."
+          label="Extraction failures"
+          value={dashboard.extraction_failures.length}
+        />
+      </section>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_360px]">
+        <section className="space-y-4">
+          <SectionHeader
+            action={
+              <Link
+                className="text-sm font-medium text-slate-600 transition hover:text-cyan-700"
+                href={`/inbox?workspace=${workspace}`}
+              >
+                Open full inbox
+              </Link>
+            }
+            eyebrow="Decision queue"
+            title="Oldest proposals first"
+          />
+
+          {dashboard.awaiting_review.length ? (
+            <Surface className="overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-slate-200/80 bg-slate-50/70 hover:bg-slate-50/70">
+                    <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                      Knowledge
+                    </TableHead>
+                    <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                      Origin
+                    </TableHead>
+                    <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                      Verification
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {dashboard.awaiting_review.map((node) => (
+                    <TableRow key={String(node.id)} className="border-slate-200/70">
+                      <TableCell className="px-6 py-5 align-top whitespace-normal">
+                        <Link
+                          className="block text-base font-semibold tracking-tight text-slate-950 transition hover:text-cyan-700"
+                          href={`/knowledge/${node.id}?workspace=${workspace}`}
+                        >
+                          {String(node.title)}
+                        </Link>
+                        <span className="mt-2 block text-sm text-slate-500">
+                          {String(node.type).replaceAll("_", " ")}
+                        </span>
+                      </TableCell>
+                      <TableCell className="px-6 py-5 align-top">
+                        <TrustBadge kind="origin" value={String(node.origin)} />
+                      </TableCell>
+                      <TableCell className="px-6 py-5 align-top">
+                        <TrustBadge kind="verification" value={String(node.verification)} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Surface>
+          ) : (
+            <EmptyState
+              description="New extraction and manual proposals will appear here."
+              title="The review queue is clear."
+            />
+          )}
         </section>
 
-        <div className="split-grid">
-          <section>
-            <div className="section-heading">
-              <div>
-                <p className="section-label">Decision queue</p>
-                <h2>Oldest proposals first</h2>
-              </div>
-              <Link className="muted" href={`/inbox?workspace=${workspace}`}>
-                Open full inbox →
-              </Link>
-            </div>
-            <div className="data-table-wrap">
-              {dashboard.awaiting_review.length ? (
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Knowledge</th>
-                      <th>Origin</th>
-                      <th>Verification</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dashboard.awaiting_review.map((node) => (
-                      <tr key={String(node.id)}>
-                        <td>
-                          <Link
-                            className="statement-link"
-                            href={`/knowledge/${node.id}?workspace=${workspace}`}
-                          >
-                            {String(node.title)}
-                          </Link>
-                          <span className="cell-meta">
-                            {String(node.type).replaceAll("_", " ")}
-                          </span>
-                        </td>
-                        <td>
-                          <TrustBadge kind="origin" value={String(node.origin)} />
-                        </td>
-                        <td>
-                          <TrustBadge kind="verification" value={String(node.verification)} />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="empty-state">
-                  <strong>The review queue is clear.</strong>
-                  New extraction and manual proposals will appear here.
-                </div>
-              )}
-            </div>
-          </section>
+        <aside className="space-y-6">
+          <Surface className="p-6">
+            <SectionHeader eyebrow="Immutable intake" title="Recent sources" />
+            {dashboard.recent_sources.length ? (
+              <ul className="mt-6 space-y-4">
+                {dashboard.recent_sources.map((source) => (
+                  <li
+                    className="border-t border-slate-200/80 pt-4 first:border-t-0 first:pt-0"
+                    key={String(source.id)}
+                  >
+                    <p className="font-semibold tracking-tight text-slate-950">
+                      {String(source.title ?? source.external_id)}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      {String(source.source_system)} ·{" "}
+                      {String(source.source_type).replaceAll("_", " ")}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-6 text-sm leading-7 text-slate-600">
+                No sources have been ingested yet.
+              </p>
+            )}
+          </Surface>
 
-          <aside>
-            <section className="panel">
-              <p className="section-label">Immutable intake</p>
-              <h2>Recent sources</h2>
-              {dashboard.recent_sources.length ? (
-                <ul className="plain-list">
-                  {dashboard.recent_sources.map((source) => (
-                    <li key={String(source.id)}>
-                      <strong>{String(source.title ?? source.external_id)}</strong>
-                      <span className="cell-meta">
-                        {String(source.source_system)} ·{" "}
-                        {String(source.source_type).replaceAll("_", " ")}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="muted">No sources have been ingested yet.</p>
-              )}
-            </section>
-            <section className="panel">
-              <p className="section-label">Needs attention</p>
-              <h2>Extraction failures</h2>
-              {dashboard.extraction_failures.length ? (
-                <ul className="failure-list">
-                  {dashboard.extraction_failures.map((failure) => (
-                    <li key={String(failure.id)}>
-                      <strong>{String(failure.title ?? failure.external_id)}</strong>
-                      <span className="cell-meta">
-                        {String(failure.error_code)} · {String(failure.error_message)}
-                      </span>
-                      <form action={retryExtractionAction} className="failure-action">
-                        <input type="hidden" name="workspace_id" value={workspace} />
-                        <input type="hidden" name="source_id" value={String(failure.source_id)} />
-                        <button className="secondary" type="submit">
-                          Retry extraction
-                        </button>
-                      </form>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="muted">No failed extraction attempts.</p>
-              )}
-            </section>
-          </aside>
-        </div>
+          <Surface className="p-6">
+            <SectionHeader eyebrow="Needs attention" title="Extraction failures" />
+            {dashboard.extraction_failures.length ? (
+              <ul className="mt-6 space-y-4">
+                {dashboard.extraction_failures.map((failure) => (
+                  <li
+                    className="rounded-3xl border border-rose-200/70 bg-rose-50/70 p-4"
+                    key={String(failure.id)}
+                  >
+                    <p className="font-semibold tracking-tight text-slate-950">
+                      {String(failure.title ?? failure.external_id)}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      {String(failure.error_code)} · {String(failure.error_message)}
+                    </p>
+                    <form action={retryExtractionAction} className="mt-4">
+                      <input type="hidden" name="workspace_id" value={workspace} />
+                      <input type="hidden" name="source_id" value={String(failure.source_id)} />
+                      <button
+                        className={cn(
+                          buttonVariants({ size: "sm", variant: "outline" }),
+                          "rounded-full border-rose-200 bg-white/80",
+                        )}
+                        type="submit"
+                      >
+                        Retry extraction
+                      </button>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-6 text-sm leading-7 text-slate-600">
+                No failed extraction attempts.
+              </p>
+            )}
+          </Surface>
+        </aside>
       </div>
     </AdminShell>
   );

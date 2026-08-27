@@ -6,6 +6,18 @@ import { workspaceFrom } from "@/src/ui/workspace";
 import { AdminShell } from "@/components/admin-shell";
 import { PageHeader } from "@/components/page-header";
 import { TrustBadge } from "@/components/trust-badge";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { EmptyState, SectionHeader, Surface } from "@/components/ui/workspace";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -25,147 +37,209 @@ export default async function Inbox({
         title="Knowledge inbox"
         description="Approve editorial usefulness, edit atomic statements, or reject weak proposals. Approval activates knowledge; it never upgrades factual verification."
       />
-      <div className="content-width">
-        <div className="section-heading">
-          <div>
-            <p className="section-label">Node proposals</p>
-            <h2>{inbox.nodes.length} awaiting judgment</h2>
-          </div>
-        </div>
-        {inbox.nodes.length ? (
-          inbox.nodes.map((node) => {
-            const provenance = (node.provenance ?? []) as Array<Record<string, unknown>>;
-            const extraction = (node.metadata.extraction ?? {}) as Record<string, unknown>;
-            const duplicates = (extraction.duplicate_candidates ?? []) as string[];
-            const contradictions = (extraction.potential_contradictions ?? []) as string[];
-            return (
-              <article className="review-item" key={node.id}>
-                <div>
-                  <div className="inline-badges">
-                    <TrustBadge kind="origin" value={node.origin} />
-                    <TrustBadge kind="verification" value={node.verification} />
-                    <TrustBadge kind="lifecycle" value={node.lifecycle_status} />
-                    <TrustBadge kind="sensitivity" value={node.sensitivity} />
-                  </div>
-                  <h2>{node.title}</h2>
-                  <p className="canonical">{node.canonical_statement}</p>
-                  <div className="cell-meta">
-                    {node.type.replaceAll("_", " ")} · confidence {node.confidence.toFixed(2)} ·
-                    version {node.current_version}
-                  </div>
-                  {duplicates.length || contradictions.length ? (
-                    <p className="muted">
-                      {duplicates.length ? `${duplicates.length} possible duplicate(s). ` : ""}
-                      {contradictions.length
-                        ? `${contradictions.length} potential contradiction(s).`
-                        : ""}
-                    </p>
-                  ) : null}
-                  {provenance.map((reference, index) => (
-                    <details
-                      className="provenance-rail"
-                      key={`${String(reference.source_id)}-${index}`}
-                    >
-                      <summary>
-                        {String(reference.source_system)}:{String(reference.external_id)}:v
-                        {String(reference.source_version)}
-                      </summary>
-                      <p className="excerpt">“{String(reference.excerpt)}”</p>
-                      <div className="source-content">{String(reference.content)}</div>
-                    </details>
-                  ))}
-                </div>
-                <aside className="review-actions" aria-label={`Review ${node.title}`}>
-                  <Link
-                    className="button secondary"
-                    href={`/knowledge/${node.id}?workspace=${workspace}`}
-                  >
-                    Inspect and edit
-                  </Link>
-                  <form action={approveNodeAction}>
-                    <input type="hidden" name="workspace_id" value={workspace} />
-                    <input type="hidden" name="node_id" value={node.id} />
-                    <input
-                      type="hidden"
-                      name="reason"
-                      value="Approved after reviewing source provenance"
-                    />
-                    <button type="submit">Approve knowledge</button>
-                  </form>
-                  <form action={rejectNodeAction}>
-                    <input type="hidden" name="workspace_id" value={workspace} />
-                    <input type="hidden" name="node_id" value={node.id} />
-                    <label>
-                      Rejection reason
-                      <input
-                        name="reason"
-                        required
-                        minLength={3}
-                        placeholder="Why this should not enter memory"
-                      />
-                    </label>
-                    <button className="danger" type="submit">
-                      Reject proposal
-                    </button>
-                  </form>
-                </aside>
-              </article>
-            );
-          })
-        ) : (
-          <div className="panel empty-state">
-            <strong>No node proposals are waiting.</strong>
-            <Link className="statement-link" href={`/add?workspace=${workspace}`}>
-              Add source material to create new proposals →
-            </Link>
-          </div>
-        )}
 
-        <div className="section-heading" style={{ marginTop: 42 }}>
-          <div>
-            <p className="section-label">Relationship proposals</p>
-            <h2>{inbox.edges.length} typed edges awaiting judgment</h2>
+      <section className="space-y-4">
+        <SectionHeader eyebrow="Node proposals" title={`${inbox.nodes.length} awaiting judgment`} />
+
+        {inbox.nodes.length ? (
+          <div className="space-y-5">
+            {inbox.nodes.map((node) => {
+              const provenance = (node.provenance ?? []) as Array<Record<string, unknown>>;
+              const extraction = (node.metadata.extraction ?? {}) as Record<string, unknown>;
+              const duplicates = (extraction.duplicate_candidates ?? []) as string[];
+              const contradictions = (extraction.potential_contradictions ?? []) as string[];
+
+              return (
+                <Surface
+                  className="grid gap-6 p-6 xl:grid-cols-[minmax(0,1fr)_300px]"
+                  key={node.id}
+                >
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap gap-2">
+                      <TrustBadge kind="origin" value={node.origin} />
+                      <TrustBadge kind="verification" value={node.verification} />
+                      <TrustBadge kind="lifecycle" value={node.lifecycle_status} />
+                      <TrustBadge kind="sensitivity" value={node.sensitivity} />
+                    </div>
+
+                    <div className="space-y-3">
+                      <h2 className="font-serif text-3xl leading-none tracking-tight text-slate-950">
+                        {node.title}
+                      </h2>
+                      <p className="font-serif text-2xl leading-tight tracking-tight text-slate-900">
+                        {node.canonical_statement}
+                      </p>
+                      <p className="text-sm leading-6 text-slate-600">
+                        {node.type.replaceAll("_", " ")} · confidence {node.confidence.toFixed(2)} ·
+                        version {node.current_version}
+                      </p>
+                    </div>
+
+                    {duplicates.length || contradictions.length ? (
+                      <p className="rounded-2xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-sm leading-6 text-amber-700">
+                        {duplicates.length ? `${duplicates.length} possible duplicate(s). ` : ""}
+                        {contradictions.length
+                          ? `${contradictions.length} potential contradiction(s).`
+                          : ""}
+                      </p>
+                    ) : null}
+
+                    <div className="space-y-3">
+                      {provenance.map((reference, index) => (
+                        <details
+                          className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-4"
+                          key={`${String(reference.source_id)}-${index}`}
+                        >
+                          <summary className="cursor-pointer text-sm font-semibold text-slate-900">
+                            {String(reference.source_system)}:{String(reference.external_id)}:v
+                            {String(reference.source_version)}
+                          </summary>
+                          <p className="mt-3 border-l-2 border-cyan-200 pl-4 text-sm leading-6 text-slate-700">
+                            “{String(reference.excerpt)}”
+                          </p>
+                          <div className="mt-3 max-h-48 overflow-auto border-t border-slate-200/80 pt-3 text-sm leading-6 text-slate-600 whitespace-pre-wrap">
+                            {String(reference.content)}
+                          </div>
+                        </details>
+                      ))}
+                    </div>
+                  </div>
+
+                  <aside
+                    aria-label={`Review ${node.title}`}
+                    className="space-y-4 border-t border-slate-200/80 pt-6 xl:border-t-0 xl:border-l xl:pl-6 xl:pt-0"
+                  >
+                    <Link
+                      className={cn(
+                        buttonVariants({ size: "lg", variant: "outline" }),
+                        "w-full rounded-full border-slate-200 bg-white/85",
+                      )}
+                      href={`/knowledge/${node.id}?workspace=${workspace}`}
+                    >
+                      Inspect and edit
+                    </Link>
+
+                    <form action={approveNodeAction} className="space-y-3">
+                      <input type="hidden" name="workspace_id" value={workspace} />
+                      <input type="hidden" name="node_id" value={node.id} />
+                      <input
+                        type="hidden"
+                        name="reason"
+                        value="Approved after reviewing source provenance"
+                      />
+                      <Button className="w-full rounded-full" size="lg" type="submit">
+                        Approve knowledge
+                      </Button>
+                    </form>
+
+                    <form action={rejectNodeAction} className="space-y-3">
+                      <input type="hidden" name="workspace_id" value={workspace} />
+                      <input type="hidden" name="node_id" value={node.id} />
+                      <label className="block space-y-2 text-sm font-medium text-slate-800">
+                        <span>Rejection reason</span>
+                        <Input
+                          minLength={3}
+                          name="reason"
+                          placeholder="Why this should not enter memory"
+                          required
+                        />
+                      </label>
+                      <Button
+                        className="w-full rounded-full"
+                        size="lg"
+                        type="submit"
+                        variant="destructive"
+                      >
+                        Reject proposal
+                      </Button>
+                    </form>
+                  </aside>
+                </Surface>
+              );
+            })}
           </div>
-        </div>
-        <div className="data-table-wrap">
-          {inbox.edges.length ? (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>From</th>
-                  <th>Relationship</th>
-                  <th>To</th>
-                  <th>Supporting provenance</th>
-                  <th>Review</th>
-                </tr>
-              </thead>
-              <tbody>
+        ) : (
+          <EmptyState
+            action={
+              <Link
+                className={cn(buttonVariants({ size: "lg" }), "rounded-full px-4")}
+                href={`/add?workspace=${workspace}`}
+              >
+                Add source material
+              </Link>
+            }
+            description="Add source material to create new proposals."
+            title="No node proposals are waiting."
+          />
+        )}
+      </section>
+
+      <section className="space-y-4">
+        <SectionHeader
+          eyebrow="Relationship proposals"
+          title={`${inbox.edges.length} typed edges awaiting judgment`}
+        />
+
+        {inbox.edges.length ? (
+          <Surface className="overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-slate-200/80 bg-slate-50/70 hover:bg-slate-50/70">
+                  <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                    From
+                  </TableHead>
+                  <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                    Relationship
+                  </TableHead>
+                  <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                    To
+                  </TableHead>
+                  <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                    Supporting provenance
+                  </TableHead>
+                  <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                    Review
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {inbox.edges.map((edge) => {
                   const sources = (edge.sources ?? []) as Array<Record<string, unknown>>;
+
                   return (
-                    <tr key={String(edge.id)}>
-                      <td>{String(edge.source_title)}</td>
-                      <td>
-                        <span className="mono">{String(edge.type)}</span>
-                      </td>
-                      <td>{String(edge.target_title)}</td>
-                      <td>
-                        {sources.map((source, index) => (
-                          <details
-                            className="provenance-rail"
-                            key={`${String(source.source_id)}-${index}`}
-                          >
-                            <summary>
-                              {String(source.source_system)}:{String(source.external_id)}:v
-                              {String(source.source_version)}
-                            </summary>
-                            <p className="excerpt">“{String(source.excerpt)}”</p>
-                            <div className="source-content">{String(source.content)}</div>
-                          </details>
-                        ))}
-                      </td>
-                      <td>
-                        <div className="inline-badges">
+                    <TableRow className="border-slate-200/70" key={String(edge.id)}>
+                      <TableCell className="px-6 py-5 align-top whitespace-normal">
+                        {String(edge.source_title)}
+                      </TableCell>
+                      <TableCell className="px-6 py-5 align-top font-mono text-xs uppercase tracking-[0.16em] whitespace-normal text-cyan-700">
+                        {String(edge.type)}
+                      </TableCell>
+                      <TableCell className="px-6 py-5 align-top whitespace-normal">
+                        {String(edge.target_title)}
+                      </TableCell>
+                      <TableCell className="px-6 py-5 align-top whitespace-normal">
+                        <div className="space-y-3">
+                          {sources.map((source, index) => (
+                            <details
+                              className="rounded-[20px] border border-slate-200/80 bg-slate-50/70 p-4"
+                              key={`${String(source.source_id)}-${index}`}
+                            >
+                              <summary className="cursor-pointer text-sm font-semibold text-slate-900">
+                                {String(source.source_system)}:{String(source.external_id)}:v
+                                {String(source.source_version)}
+                              </summary>
+                              <p className="mt-3 border-l-2 border-cyan-200 pl-4 text-sm leading-6 text-slate-700">
+                                “{String(source.excerpt)}”
+                              </p>
+                              <div className="mt-3 max-h-40 overflow-auto border-t border-slate-200/80 pt-3 text-sm leading-6 text-slate-600 whitespace-pre-wrap">
+                                {String(source.content)}
+                              </div>
+                            </details>
+                          ))}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-5 align-top">
+                        <div className="flex flex-col gap-3">
                           <form action={reviewEdgeAction}>
                             <input type="hidden" name="workspace_id" value={workspace} />
                             <input type="hidden" name="edge_id" value={String(edge.id)} />
@@ -175,7 +249,9 @@ export default async function Inbox({
                               name="reason"
                               value="Relationship provenance reviewed"
                             />
-                            <button type="submit">Approve</button>
+                            <Button className="w-full rounded-full" size="sm" type="submit">
+                              Approve
+                            </Button>
                           </form>
                           <form action={reviewEdgeAction}>
                             <input type="hidden" name="workspace_id" value={workspace} />
@@ -186,25 +262,30 @@ export default async function Inbox({
                               name="reason"
                               value="Relationship rejected during review"
                             />
-                            <button className="danger" type="submit">
+                            <Button
+                              className="w-full rounded-full"
+                              size="sm"
+                              type="submit"
+                              variant="destructive"
+                            >
                               Reject
-                            </button>
+                            </Button>
                           </form>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   );
                 })}
-              </tbody>
-            </table>
-          ) : (
-            <div className="empty-state">
-              <strong>No relationship proposals.</strong>
-              Proposed edges appear after structured extraction.
-            </div>
-          )}
-        </div>
-      </div>
+              </TableBody>
+            </Table>
+          </Surface>
+        ) : (
+          <EmptyState
+            description="Proposed edges appear after structured extraction."
+            title="No relationship proposals."
+          />
+        )}
+      </section>
     </AdminShell>
   );
 }
