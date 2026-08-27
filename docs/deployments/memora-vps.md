@@ -12,7 +12,7 @@ The Signal PostgreSQL container uses the reproducible image recipe at `deploy/Do
 
 As deployed on 2026-08-27:
 
-- Application release: `20260827T024742Z`
+- Application release: `b48f012f60e3`
 - PostgreSQL: `17.11`
 - pgvector: `0.8.6`
 - Pre-change Signal backup: `20260827T023854Z`
@@ -53,6 +53,39 @@ PGVECTOR_IMAGE_RELEASE=17.11-vector0.8.6 docker compose \
 
 Running the original Signal Compose definition alone can recreate the database container with plain PostgreSQL, which does not contain the vector extension library.
 
+## GitHub CI/CD
+
+The `CI` workflow validates every push and pull request. A push to `main` receives a production deployment job only after formatting, linting, type checking, unit tests, migration validation, integration tests, the production build, and the Playwright journey pass.
+
+The deployment job references the GitHub `production` environment. That environment is restricted to the `main` branch and contains only these deployment values:
+
+- Environment variables: `MEMORA_VPS_HOST`, `MEMORA_VPS_PORT`, and `MEMORA_VPS_USER`
+- Environment secrets: `MEMORA_VPS_SSH_PRIVATE_KEY` and `MEMORA_VPS_KNOWN_HOSTS`
+
+Database, service-token, and model-provider credentials remain exclusively in `/opt/axelyn-knowledge/.env`; they are not copied into GitHub.
+
+The SSH public key is installed for `debian` with a forced command and OpenSSH's `restrict` option. It cannot open an interactive shell, allocate a TTY, or create a tunnel. The forced command at `/opt/axelyn-knowledge/bin/github-deploy` accepts only:
+
+```text
+health
+deploy <full-40-character-git-sha>
+```
+
+For each deployment, the VPS:
+
+1. Acquires `/opt/axelyn-knowledge/deploy.lock` so releases cannot overlap.
+2. Fetches `main` directly from the public GitHub repository and rejects the request unless the supplied SHA is the exact current head of `main`.
+3. Builds SHA-tagged runner and migrator images.
+4. Runs migrations before changing the active application.
+5. Saves the current environment and source release.
+6. Switches `/opt/axelyn-knowledge/source`, starts only the Knowledge service, and waits for readiness.
+7. Restores the prior source, environment, and application image automatically if the new application does not become ready.
+8. Verifies from GitHub that the public readiness URL still returns a Cloudflare Access redirect.
+
+The application rollback does not reverse a completed database migration. Migrations merged to `main` must therefore remain backward-compatible with the preceding application release. Previous source trees, images, failed build trees, and environment backups are retained for investigation and explicit cleanup.
+
+Rotate the deploy credential by generating a new Ed25519 key, installing its public half with the same forced-command restrictions, replacing `MEMORA_VPS_SSH_PRIVATE_KEY` in the GitHub `production` environment, testing `health`, and only then removing the old authorized key. Replace `MEMORA_VPS_KNOWN_HOSTS` only after verifying a deliberate VPS host-key rotation through a trusted channel.
+
 ## Exposure and operator access
 
 Keep port `3001` loopback-only until a TLS route protected by Cloudflare Access is configured. The API can be called locally or through an explicitly configured private/proxied route. The administration interface requires a valid Cloudflare Access authenticated-user header in production; development identity mode cannot activate.
@@ -73,8 +106,8 @@ Validate an allowed and a denied identity in separate private browser sessions. 
 
 Extraction and embedding provider credentials were intentionally left unset at launch. Source intake remains durable, extraction failures remain retryable, and retrieval falls back to lexical plus graph scoring. Configure reviewed provider models and credentials before expecting automatic extraction or semantic seeds.
 
-## Rollback
+## Manual rollback
 
-Application rollback means restoring the prior release tag in `/opt/axelyn-knowledge/.env` and recreating `knowledge`. Migration rollback should normally use the pre-change backup rather than destructive down migrations once production data exists.
+Failed automated releases roll the application back without operator action. For a manual application rollback, restore the prior release tag and its matching source tree, then recreate `knowledge`. Migration rollback should normally use the pre-change backup rather than destructive down migrations once production data exists.
 
 The PostgreSQL image can be rolled back without changing the volume by recreating the Signal `db` service from its original Compose file. Do this only if no Knowledge schema depends on pgvector, because PostgreSQL cannot load vector columns without the extension library. The pre-change Signal dump and role-only dump in `/opt/axelyn-knowledge/backups` are the recovery source.

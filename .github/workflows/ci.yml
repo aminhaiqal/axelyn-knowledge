@@ -4,9 +4,14 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   validate:
+    name: Validate
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     services:
       postgres:
         image: pgvector/pgvector:pg17
@@ -43,3 +48,72 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+
+  deploy:
+    name: Deploy production
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment:
+      name: production
+      url: https://knowledge.axelyn.com
+    concurrency:
+      group: axelyn-knowledge-production
+      cancel-in-progress: false
+    env:
+      DEPLOY_HOST: ${{ vars.MEMORA_VPS_HOST }}
+      DEPLOY_PORT: ${{ vars.MEMORA_VPS_PORT }}
+      DEPLOY_USER: ${{ vars.MEMORA_VPS_USER }}
+    steps:
+      - name: Validate deployment configuration
+        run: |
+          set -Eeuo pipefail
+          [[ -n "$DEPLOY_HOST" ]]
+          [[ "$DEPLOY_PORT" =~ ^[0-9]{1,5}$ ]]
+          [[ "$DEPLOY_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]
+          [[ "$GITHUB_SHA" =~ ^[0-9a-f]{40}$ ]]
+
+      - name: Configure restricted SSH identity
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.MEMORA_VPS_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.MEMORA_VPS_KNOWN_HOSTS }}
+        run: |
+          set -Eeuo pipefail
+          [[ -n "$SSH_PRIVATE_KEY" ]]
+          [[ -n "$SSH_KNOWN_HOSTS" ]]
+          umask 077
+          mkdir -p "$HOME/.ssh"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/axelyn_knowledge_deploy"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          ssh-keygen -y -f "$HOME/.ssh/axelyn_knowledge_deploy" >/dev/null
+          ssh-keygen -F "$DEPLOY_HOST" -f "$HOME/.ssh/known_hosts" >/dev/null
+
+      - name: Deploy exact main commit
+        run: |
+          set -Eeuo pipefail
+          ssh \
+            -i "$HOME/.ssh/axelyn_knowledge_deploy" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=20 \
+            -p "$DEPLOY_PORT" \
+            "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "deploy ${GITHUB_SHA}"
+
+      - name: Verify Cloudflare Access boundary
+        run: |
+          set -Eeuo pipefail
+          status_code="$(curl \
+            --silent \
+            --show-error \
+            --output /dev/null \
+            --write-out '%{http_code}' \
+            --max-time 20 \
+            https://knowledge.axelyn.com/health/ready)"
+          [[ "$status_code" == "302" ]]
+
+      - name: Remove SSH identity
+        if: always()
+        run: rm -f -- "$HOME/.ssh/axelyn_knowledge_deploy"
