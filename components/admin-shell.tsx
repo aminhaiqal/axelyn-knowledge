@@ -4,6 +4,7 @@ import type { OperatorIdentity } from "@/src/auth/operator-auth";
 
 const navigation = [
   ["/", "Register", "R"],
+  ["/add", "Add knowledge", "+"],
   ["/inbox", "Inbox", "I"],
   ["/knowledge", "Library", "K"],
   ["/memory-map", "Memory map", "M"],

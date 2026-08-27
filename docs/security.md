@@ -22,7 +22,9 @@ PostgreSQL credentials belong only to this service. Axelyn Signal and other cons
 
 Source content has a 1 MB UTF-8 application and database limit and is stored as data. A streaming JSON reader also stops request bodies at 6.5 MB before parsing, which accommodates escaped source content while bounding metadata and allocation. The extraction system prompt states that every source string is untrusted, forbids invention, preserves attribution/uncertainty, and requires structured output only. Source data is JSON-encoded in a separate user message. Zod validates the response, endpoint IDs, enums, dimensions, confidence ranges, and excerpts; every excerpt must occur verbatim in the immutable source before a single proposal is applied.
 
-Version one does not fetch URLs, crawl the web, or render source HTML. React escapes source strings in the operator interface.
+The operator console can import one public web page or PDF URL. Every URL and redirect is limited to HTTP(S) on standard ports, resolved before connection, and rejected if any resolved address is local, private, link-local, reserved, or documentation-only. The request uses a pinned resolved address to prevent DNS rebinding between validation and connection, follows at most three validated redirects, and enforces response size and timeout limits. HTML is parsed as inert data: scripts, styles, frames, forms, navigation, and hidden content are discarded; page JavaScript is never executed and linked pages are never crawled. React escapes the resulting source strings in the operator interface.
+
+Uploaded documents are bounded to 8 MB. PDF extraction disables error recovery, limits image allocation and page count, and stores only the extracted text. Image-only scans are rejected when no readable text is present. Imported text remains untrusted source material under the same prompt and excerpt-validation boundaries as service API ingestion.
 
 ## Secrets and network
 
@@ -30,7 +32,7 @@ Version one does not fetch URLs, crawl the web, or render source HTML. React esc
 - Never commit bearer or provider keys; `.env*` is ignored except `.env.example`.
 - Bind PostgreSQL to localhost or a private network only. The Compose port is explicitly `127.0.0.1`.
 - Expose the app through TLS and Access; do not expose port 3000 directly to the internet.
-- Restrict outbound network access to configured extraction and embedding providers if the host firewall supports it.
+- Allow outbound HTTP(S) only where required. Website intake needs public web access; private and local destinations remain blocked in the application even when host routing could reach them.
 
 ## Audit and deletion
 

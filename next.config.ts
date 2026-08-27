@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   experimental: {
     authInterrupts: true,
     typedEnv: true,
+    serverActions: {
+      bodySizeLimit: "9mb",
+    },
   },
   turbopack: {
     root: process.cwd(),

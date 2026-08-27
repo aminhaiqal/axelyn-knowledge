@@ -52,6 +52,18 @@ Open <http://localhost:3000>. The example environment enables the development-on
 
 The seed builds a fixed explainability-in-regulated-systems graph containing a user signal, human-confirmed observation, unverified AI interpretation, supporting evidence, counterargument, approved positioning, voice pattern, and later correction.
 
+## Add knowledge from the operator console
+
+Open **Add knowledge** in the sidebar to create a source from:
+
+- pasted notes, transcripts, research, or drafts;
+- PDF, TXT, Markdown, CSV, JSON, or HTML files up to 8 MB; or
+- one public web page or PDF URL.
+
+The console preserves readable source text as an immutable provenance record, then uses the configured extraction gateway to create atomic node and relationship proposals. Proposals remain `UNVERIFIED` and `PROPOSED` until reviewed in the **Inbox**. The operator-selected sensitivity is applied to every proposal from that import.
+
+PDF import supports text-based documents with up to 150 pages; image-only scans require OCR before upload. Website import fetches one public page without executing JavaScript or following links. Local and private network destinations are blocked. If extraction is not configured, the source is still saved and the failed attempt appears on the Register.
+
 ### Migration and seed commands
 
 ```bash
@@ -110,4 +122,5 @@ The maintained [OpenAPI 3.1 specification](openapi.yaml) defines the complete su
 - English PostgreSQL text search is configured for the first release.
 - Embedding similarity creates suggestions only; all merges require a human decision.
 - Consolidation primitives exist, but no autonomous consolidation agent or physical forgetting process runs.
-- There is no web crawling, URL fetching, external deployment automation, or direct consumer database access.
+- Operator website intake fetches one public page only. It does not crawl links, execute page JavaScript, access authenticated pages, or render client-only sites.
+- There is no external deployment automation or direct consumer database access.
