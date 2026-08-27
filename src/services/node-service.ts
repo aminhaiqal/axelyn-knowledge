@@ -744,16 +744,22 @@ export class NodeService {
         [workspaceId],
       ),
       query(
-        `SELECT id, source_system, source_type, external_id, created_at
+        `SELECT id, source_system, source_type, external_id, metadata->>'title' AS title, created_at
          FROM knowledge_sources WHERE workspace_id = $1 ORDER BY created_at DESC LIMIT 8`,
         [workspaceId],
       ),
       query(
         `SELECT e.id, e.source_id, e.error_code, e.error_message, e.completed_at,
-          s.source_system, s.external_id
-         FROM knowledge_extractions e
+          s.source_system, s.external_id, s.metadata->>'title' AS title
+         FROM (
+           SELECT DISTINCT ON (source_id) id, workspace_id, source_id, status, attempt,
+             error_code, error_message, completed_at
+           FROM knowledge_extractions
+           WHERE workspace_id = $1
+           ORDER BY source_id, attempt DESC
+         ) e
          JOIN knowledge_sources s ON s.workspace_id = e.workspace_id AND s.id = e.source_id
-         WHERE e.workspace_id = $1 AND e.status = 'FAILED'
+         WHERE e.status = 'FAILED'
          ORDER BY e.completed_at DESC LIMIT 8`,
         [workspaceId],
       ),

@@ -3,7 +3,7 @@ import { isDeepStrictEqual } from "node:util";
 import { withTransaction, query } from "@/src/db/pool";
 import { mapSource, vectorLiteral } from "@/src/db/records";
 import { conflict, notFound } from "@/src/domain/errors";
-import type { Origin, Verification } from "@/src/domain/enums";
+import type { Origin, Sensitivity, Verification } from "@/src/domain/enums";
 import type { KnowledgeSource } from "@/src/domain/models";
 import { sha256, statementHash } from "@/src/domain/normalize";
 import type { ExtractionOutput, SourceIngestionInput } from "@/src/domain/schemas";
@@ -53,6 +53,29 @@ function sourceTrust(source: KnowledgeSource): { origin: Origin; verification: V
     origin: origins[source.source_type] ?? "AI_DERIVED",
     verification: source.verification_assertion?.level ?? "UNVERIFIED",
   };
+}
+
+function operatorIntakeSensitivity(source: KnowledgeSource): Sensitivity | null {
+  const intake = source.metadata.operator_intake;
+  if (!intake || typeof intake !== "object" || !("sensitivity" in intake)) return null;
+  const value = String(intake.sensitivity);
+  return new Set<Sensitivity>(["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"]).has(
+    value as Sensitivity,
+  )
+    ? (value as Sensitivity)
+    : null;
+}
+
+export function applyOperatorIntakeSensitivity(
+  source: KnowledgeSource,
+  output: ExtractionOutput,
+): ExtractionOutput {
+  const sensitivity = operatorIntakeSensitivity(source);
+  if (!sensitivity) return output;
+  return ExtractionOutputSchema.parse({
+    ...output,
+    nodes: output.nodes.map((node) => ({ ...node, sensitivity })),
+  });
 }
 
 export function ensureApprovedArtifact(
@@ -323,9 +346,12 @@ export class SourceService {
     );
 
     try {
-      const proposals = ensureApprovedArtifact(
+      const proposals = applyOperatorIntakeSensitivity(
         source,
-        ExtractionOutputSchema.parse(await this.extractionGateway.extract(source)),
+        ensureApprovedArtifact(
+          source,
+          ExtractionOutputSchema.parse(await this.extractionGateway.extract(source)),
+        ),
       );
       this.validateExcerpts(source, proposals);
       const embeddings = await this.embedProposals(proposals);

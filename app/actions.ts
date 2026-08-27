@@ -12,6 +12,7 @@ import {
 } from "@/src/domain/schemas";
 import { nodeService } from "@/src/services/node-service";
 import { retrievalService } from "@/src/services/retrieval-service";
+import { sourceService } from "@/src/services/source-service";
 
 const ActionSchema = z.object({
   workspace_id: WorkspaceIdSchema,
@@ -146,6 +147,20 @@ export async function createNodeAction(formData: FormData) {
   await nodeService.create(input, operator.email);
   revalidatePath("/knowledge");
   revalidatePath("/inbox");
+}
+
+export async function retryExtractionAction(formData: FormData) {
+  const operator = await requireOperator();
+  const input = z
+    .object({
+      workspace_id: WorkspaceIdSchema,
+      source_id: UuidSchema,
+    })
+    .parse(Object.fromEntries(formData));
+  await sourceService.requestExtraction(input.workspace_id, input.source_id, operator.email);
+  revalidatePath("/");
+  revalidatePath("/inbox");
+  revalidatePath("/knowledge");
 }
 
 export interface RetrievalActionState {

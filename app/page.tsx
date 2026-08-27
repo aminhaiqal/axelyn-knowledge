@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { retryExtractionAction } from "@/app/actions";
 import { requireOperator } from "@/src/auth/operator-auth";
 import { nodeService } from "@/src/services/node-service";
 import { workspaceFrom } from "@/src/ui/workspace";
@@ -25,9 +26,14 @@ export default async function Dashboard({
         title="What the system currently remembers"
         description="A trust-aware register of reusable knowledge, pending judgment, and failed extraction work. Editorial approval and factual verification remain separate here."
         actions={
-          <Link className="button" href={`/inbox?workspace=${workspace}`}>
-            Review inbox
-          </Link>
+          <div className="header-actions">
+            <Link className="button secondary" href={`/inbox?workspace=${workspace}`}>
+              Review inbox
+            </Link>
+            <Link className="button" href={`/add?workspace=${workspace}`}>
+              Add knowledge
+            </Link>
+          </div>
         }
       />
       <div className="content-width">
@@ -112,7 +118,7 @@ export default async function Dashboard({
                 <ul className="plain-list">
                   {dashboard.recent_sources.map((source) => (
                     <li key={String(source.id)}>
-                      <strong>{String(source.external_id)}</strong>
+                      <strong>{String(source.title ?? source.external_id)}</strong>
                       <span className="cell-meta">
                         {String(source.source_system)} ·{" "}
                         {String(source.source_type).replaceAll("_", " ")}
@@ -131,10 +137,17 @@ export default async function Dashboard({
                 <ul className="failure-list">
                   {dashboard.extraction_failures.map((failure) => (
                     <li key={String(failure.id)}>
-                      <strong>{String(failure.external_id)}</strong>
+                      <strong>{String(failure.title ?? failure.external_id)}</strong>
                       <span className="cell-meta">
                         {String(failure.error_code)} · {String(failure.error_message)}
                       </span>
+                      <form action={retryExtractionAction} className="failure-action">
+                        <input type="hidden" name="workspace_id" value={workspace} />
+                        <input type="hidden" name="source_id" value={String(failure.source_id)} />
+                        <button className="secondary" type="submit">
+                          Retry extraction
+                        </button>
+                      </form>
                     </li>
                   ))}
                 </ul>

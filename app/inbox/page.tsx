@@ -115,7 +115,9 @@ export default async function Inbox({
         ) : (
           <div className="panel empty-state">
             <strong>No node proposals are waiting.</strong>
-            Ingest a source with extraction enabled or create a manual proposal in the library.
+            <Link className="statement-link" href={`/add?workspace=${workspace}`}>
+              Add source material to create new proposals →
+            </Link>
           </div>
         )}
 
