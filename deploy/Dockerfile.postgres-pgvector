@@ -1,0 +1,36 @@
+# syntax=docker/dockerfile:1.7
+
+ARG POSTGRES_IMAGE=postgres:17-alpine
+
+FROM ${POSTGRES_IMAGE} AS pgvector-builder
+ARG PGVECTOR_VERSION=0.8.6
+ARG PGVECTOR_SHA256=10bf9938906e5d643bbc4a7eea104b6f57ba4898e5b76b20e60484ea1d5a7f8f
+
+RUN apk add --no-cache \
+      build-base \
+      ca-certificates \
+      clang21 \
+      curl \
+      llvm21-dev \
+      tar \
+    && curl --fail --location --show-error --silent \
+      "https://github.com/pgvector/pgvector/archive/refs/tags/v${PGVECTOR_VERSION}.tar.gz" \
+      --output /tmp/pgvector.tar.gz \
+    && echo "${PGVECTOR_SHA256}  /tmp/pgvector.tar.gz" | sha256sum -c \
+    && mkdir /tmp/pgvector \
+    && tar --extract --gzip --file /tmp/pgvector.tar.gz \
+      --directory /tmp/pgvector --strip-components=1 \
+    && make --directory /tmp/pgvector OPTFLAGS="" \
+    && make --directory /tmp/pgvector install
+
+FROM ${POSTGRES_IMAGE}
+ARG PGVECTOR_VERSION=0.8.6
+LABEL org.opencontainers.image.title="PostgreSQL with pgvector for Axelyn" \
+      org.opencontainers.image.description="The Axelyn Signal PostgreSQL 17 Alpine base with pgvector installed" \
+      org.opencontainers.image.version="${PGVECTOR_VERSION}"
+
+COPY --from=pgvector-builder /usr/local/lib/postgresql/vector.so /usr/local/lib/postgresql/vector.so
+COPY --from=pgvector-builder /usr/local/lib/postgresql/bitcode/vector /usr/local/lib/postgresql/bitcode/vector
+COPY --from=pgvector-builder /usr/local/lib/postgresql/bitcode/vector.index.bc /usr/local/lib/postgresql/bitcode/vector.index.bc
+COPY --from=pgvector-builder /usr/local/share/postgresql/extension/vector.control /usr/local/share/postgresql/extension/vector.control
+COPY --from=pgvector-builder /usr/local/share/postgresql/extension/vector--*.sql /usr/local/share/postgresql/extension/

@@ -1,0 +1,3 @@
+services:
+  db:
+    image: axelyn-signal-postgres-pgvector:${PGVECTOR_IMAGE_RELEASE:?Set PGVECTOR_IMAGE_RELEASE}
