@@ -44,7 +44,7 @@ test("an operator imports pasted source material through the guided intake", asy
     .fill(`The review team needs a visible evidence path for every decision. ${suffix}`);
   await page.getByRole("button", { name: "Import text" }).click();
 
-  const receipt = page.locator(".intake-result");
+  const receipt = page.getByRole("status");
   await expect(receipt).toContainText(title);
   await expect(receipt).toContainText("Source saved");
   await receipt.getByRole("link", { name: "View extraction" }).click();
