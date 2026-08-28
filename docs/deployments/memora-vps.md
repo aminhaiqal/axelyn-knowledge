@@ -104,7 +104,7 @@ The intended public hostname is `knowledge.axelyn.com`. Create the Access applic
 
 Validate an allowed and a denied identity in separate private browser sessions. A request without an Access session should redirect to Access, while an allowed identity should receive the Knowledge UI. The Docker service alias is intentionally `knowledge`; do not use the shared name `app`, host loopback, or port `3001` as the tunnel origin.
 
-Extraction and embedding provider credentials were intentionally left unset at launch. Source intake remains durable, extraction failures remain retryable, and retrieval falls back to lexical plus graph scoring. Set `EXTRACTION_API_KEY` in `/opt/axelyn-knowledge/.env` to enable the default cost-aware OpenRouter cascade. Optionally set `EXTRACTION_MODELS` to a comma-separated model order; the legacy `EXTRACTION_MODEL` setting still forces a single model. Embedding credentials remain independently optional.
+Extraction and embedding provider credentials were intentionally left unset at launch. Source intake remains durable, extraction failures remain retryable, and retrieval falls back to lexical plus graph scoring. Operators can save a workspace OpenRouter key under **Settings → Model access**; workspace keys take precedence over environment configuration. The deploy runner generates a 32-byte `CREDENTIAL_ENCRYPTION_KEY` in `/opt/axelyn-knowledge/.env` when one is not already present, and the application uses it only for AES-256-GCM credential encryption. `EXTRACTION_API_KEY` and `EXTRACTION_MODELS` remain available as server-managed fallbacks. Embedding credentials remain independently optional.
 
 ## Manual rollback
 

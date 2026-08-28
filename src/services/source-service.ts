@@ -9,7 +9,7 @@ import type { KnowledgeSource } from "@/src/domain/models";
 import { sha256, statementHash } from "@/src/domain/normalize";
 import type { ExtractionOutput, SourceIngestionInput } from "@/src/domain/schemas";
 import { ExtractionOutputSchema } from "@/src/domain/schemas";
-import { createEmbeddingGateway, createExtractionGateway } from "@/src/gateways/factory";
+import { createEmbeddingGateway, createWorkspaceExtractionGateway } from "@/src/gateways/factory";
 import type { EmbeddingGateway, KnowledgeExtractionGateway } from "@/src/gateways/types";
 import { logger } from "@/src/lib/logger";
 
@@ -190,7 +190,7 @@ async function insertEdgeVersion(
 
 export class SourceService {
   constructor(
-    private readonly extractionGateway: KnowledgeExtractionGateway | null = createExtractionGateway(),
+    private readonly extractionGateway: KnowledgeExtractionGateway | null | undefined = undefined,
     private readonly embeddingGateway: EmbeddingGateway | null = createEmbeddingGateway(),
   ) {}
 
@@ -313,6 +313,10 @@ export class SourceService {
 
   async requestExtraction(workspaceId: string, sourceId: string, actor: string) {
     const source = await this.getSource(workspaceId, sourceId);
+    const extractionGateway =
+      this.extractionGateway === undefined
+        ? await createWorkspaceExtractionGateway(workspaceId)
+        : this.extractionGateway;
     const extraction = await withTransaction(async (client) => {
       await client.query(`SELECT pg_advisory_xact_lock(hashtextextended($1, 0))`, [sourceId]);
       const inserted = await client.query<ExtractionRecord>(
@@ -325,15 +329,15 @@ export class SourceService {
         [
           workspaceId,
           sourceId,
-          this.extractionGateway?.name ?? null,
-          this.extractionGateway?.model ?? null,
+          extractionGateway?.name ?? null,
+          extractionGateway?.model ?? null,
           actor,
         ],
       );
       return inserted.rows[0];
     });
 
-    if (!this.extractionGateway) {
+    if (!extractionGateway) {
       return this.failExtraction(
         extraction.id,
         "GATEWAY_UNAVAILABLE",
@@ -347,7 +351,7 @@ export class SourceService {
     );
 
     try {
-      const extracted = await this.extractionGateway.extract(source);
+      const extracted = await extractionGateway.extract(source);
       const proposals = applyOperatorIntakeSensitivity(
         source,
         ensureApprovedArtifact(source, ExtractionOutputSchema.parse(extracted.output)),
@@ -355,7 +359,7 @@ export class SourceService {
       validateGroundedExtraction(source, proposals);
       await query(`UPDATE knowledge_extractions SET gateway = $2, model = $3 WHERE id = $1`, [
         extraction.id,
-        this.extractionGateway.name,
+        extractionGateway.name,
         extracted.model,
       ]);
       const embeddings = await this.embedProposals(proposals);

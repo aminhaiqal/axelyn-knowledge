@@ -48,3 +48,14 @@ test("an operator imports pasted source material through the guided intake", asy
   await receipt.getByRole("link", { name: "View extraction" }).click();
   await expect(page.getByText(title, { exact: true }).first()).toBeVisible();
 });
+
+test("an operator can manage model access from settings", async ({ page }) => {
+  await page.goto("/settings?workspace=e2e");
+
+  await expect(page.getByRole("heading", { level: 1, name: "Model access" })).toBeVisible();
+  await expect(page.getByLabel("OpenRouter API key")).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Routine model" })).toHaveValue(
+    "google/gemini-2.5-flash-lite",
+  );
+  await expect(page.getByRole("button", { name: "Save model access" })).toBeVisible();
+});

@@ -29,6 +29,7 @@ Uploaded documents are bounded to 8 MB. PDF extraction disables error recovery, 
 ## Secrets and network
 
 - Store `.env` with mode `0600` or use the VPS secret manager.
+- Workspace OpenRouter keys are write-only in the operator UI and encrypted with AES-256-GCM before database storage. The 32-byte `CREDENTIAL_ENCRYPTION_KEY` remains in the VPS environment and is generated automatically by the production deploy runner when absent.
 - Never commit bearer or provider keys; `.env*` is ignored except `.env.example`.
 - Bind PostgreSQL to localhost or a private network only. The Compose port is explicitly `127.0.0.1`.
 - Expose the app through TLS and Access; do not expose port 3000 directly to the internet.

@@ -64,6 +64,8 @@ The console preserves readable source text as an immutable provenance record, th
 
 PDF import supports text-based documents with up to 150 pages; image-only scans require OCR before upload. Website import fetches one public page without executing JavaScript or following links. Local and private network destinations are blocked. If extraction is not configured, the source is still saved and the failed attempt appears on the Register. Configure `EXTRACTION_API_KEY` (or `OPENROUTER_API_KEY`) to enable the default cascade.
 
+Operators can also configure a workspace-specific OpenRouter key and model cascade from **Settings → Model access**. Workspace keys are validated with OpenRouter, encrypted with AES-256-GCM before database storage, and never returned to the browser. Workspace settings take precedence over the optional server environment fallback.
+
 ### Migration and seed commands
 
 ```bash

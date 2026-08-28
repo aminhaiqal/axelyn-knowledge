@@ -4,6 +4,7 @@ import { closePool, query } from "@/src/db/pool";
 beforeEach(async () => {
   await query(`
     TRUNCATE TABLE
+      provider_settings,
       outbox_events,
       knowledge_usage,
       retrieval_run_items,

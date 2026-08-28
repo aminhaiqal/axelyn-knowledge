@@ -11,6 +11,7 @@ import {
   Menu,
   Orbit,
   Plus,
+  Settings2,
   Sparkles,
 } from "lucide-react";
 import type { OperatorIdentity } from "@/src/auth/operator-auth";
@@ -61,6 +62,12 @@ const navigation = [
     label: "Retrieval lab",
     detail: "Inspect recalled context",
     icon: BrainCircuit,
+  },
+  {
+    href: "/settings",
+    label: "Settings",
+    detail: "Models and credentials",
+    icon: Settings2,
   },
 ] as const;
 

@@ -22,6 +22,7 @@ rollback_source=""
 rollback_release=""
 environment_backup=""
 deployment_timestamp=""
+credential_key_generated=0
 
 log_event() {
   local event="$1"
@@ -76,6 +77,44 @@ write_active_release() {
   ' "$ENV_FILE" >"$temporary_environment"
   chmod 0600 "$temporary_environment"
   mv "$temporary_environment" "$ENV_FILE"
+}
+
+ensure_credential_encryption_key() {
+  local current_key
+  local decoded_bytes
+  local generated_key
+  local temporary_environment
+
+  current_key="$(sed -n 's/^CREDENTIAL_ENCRYPTION_KEY=//p' "$ENV_FILE" | tail -n 1)"
+  if [[ -n "$current_key" ]]; then
+    if decoded_bytes="$(printf '%s' "$current_key" | base64 --decode 2>/dev/null | wc -c)" &&
+      [[ "$decoded_bytes" -eq 32 ]]; then
+      return
+    fi
+    fail "credential_encryption_key_invalid"
+  fi
+
+  generated_key="$(head -c 32 /dev/urandom | base64 | tr -d '\n')"
+  [[ -n "$generated_key" ]] || fail "credential_encryption_key_generation_failed"
+  temporary_environment="$(mktemp "${DEPLOY_ROOT}/.env.XXXXXXXX")"
+  awk -v credential_key="$generated_key" '
+    BEGIN { found = 0 }
+    /^CREDENTIAL_ENCRYPTION_KEY=/ {
+      print "CREDENTIAL_ENCRYPTION_KEY=" credential_key
+      found = 1
+      next
+    }
+    { print }
+    END {
+      if (!found) {
+        print "CREDENTIAL_ENCRYPTION_KEY=" credential_key
+      }
+    }
+  ' "$ENV_FILE" >"$temporary_environment"
+  chmod 0600 "$temporary_environment"
+  mv "$temporary_environment" "$ENV_FILE"
+  credential_key_generated=1
+  log_event "credential_encryption_key_generated"
 }
 
 preserve_failed_stage() {
@@ -165,9 +204,13 @@ deploy_release() {
 
   rollback_release="$(read_active_release)"
   [[ "$rollback_release" =~ ^[0-9a-f]{12,40}$ ]] || fail "active_release_invalid"
+  ensure_credential_encryption_key
 
   if [[ "$rollback_release" == "$release" ]]; then
     log_event "release_already_active"
+    if [[ "$credential_key_generated" -eq 1 ]]; then
+      compose_for "$ACTIVE_SOURCE" "$release" up -d --wait --no-deps --force-recreate knowledge
+    fi
     check_ready
     printf '\n'
     return
