@@ -88,6 +88,13 @@ describe("OpenRouter extraction cascade", () => {
       data_collection: "deny",
     });
     expect(firstRequest.response_format.type).toBe("json_schema");
+    expect(
+      firstRequest.response_format.json_schema.schema.properties.nodes.items.properties.metadata,
+    ).toEqual({
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    });
     expect(firstRequest).not.toHaveProperty("temperature");
   });
 
@@ -108,5 +115,30 @@ describe("OpenRouter extraction cascade", () => {
 
     await expect(gateway.extract(source)).resolves.toMatchObject({ model: "fallback/model" });
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("reports a safe provider error without exposing provider keys", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      Response.json(
+        {
+          error: {
+            message:
+              "Invalid response schema for sk-or-v1-sensitive-secret: additionalProperties must be false.",
+          },
+        },
+        { status: 400 },
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const gateway = new OpenRouterExtractionGateway(
+      "secret",
+      ["invalid/model"],
+      "https://openrouter.ai/api/v1",
+    );
+
+    await expect(gateway.extract(source)).rejects.toThrow(
+      "invalid/model: Extraction provider returned HTTP 400: Invalid response schema for [redacted provider key]: additionalProperties must be false.",
+    );
   });
 });

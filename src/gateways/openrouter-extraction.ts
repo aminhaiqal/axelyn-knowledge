@@ -53,7 +53,7 @@ const EXTRACTION_JSON_SCHEMA = {
           },
           title: { type: "string" },
           canonical_statement: { type: "string" },
-          metadata: { type: "object", additionalProperties: true },
+          metadata: { type: "object", properties: {}, additionalProperties: false },
           confidence: { type: "number", minimum: 0, maximum: 1 },
           importance: { type: "number", minimum: 0, maximum: 1 },
           salience: { type: "number", minimum: 0, maximum: 1 },
@@ -114,6 +114,30 @@ const EXTRACTION_JSON_SCHEMA = {
   },
 } as const;
 
+const EXTRACTION_TIMEOUT_MS = 75_000;
+
+function safeProviderErrorMessage(payload: unknown): string | null {
+  if (!payload || typeof payload !== "object" || !("error" in payload)) return null;
+  const error = payload.error;
+  if (!error || typeof error !== "object" || !("message" in error)) return null;
+  if (typeof error.message !== "string") return null;
+  return error.message
+    .replace(/\bsk-[a-z0-9_-]{12,}\b/gi, "[redacted provider key]")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 300);
+}
+
+async function providerFailure(response: Response): Promise<Error> {
+  const payload = await response.json().catch(() => null);
+  const detail = safeProviderErrorMessage(payload);
+  return new Error(
+    detail
+      ? `Extraction provider returned HTTP ${response.status}: ${detail}`
+      : `Extraction provider returned HTTP ${response.status}.`,
+  );
+}
+
 export class OpenRouterExtractionGateway implements KnowledgeExtractionGateway {
   readonly name = "openrouter-cascade";
   readonly model: string;
@@ -147,35 +171,43 @@ export class OpenRouterExtractionGateway implements KnowledgeExtractionGateway {
   }
 
   private async extractWithModel(source: KnowledgeSource, requestedModel: string) {
-    const response = await fetch(`${this.baseUrl.replace(/\/$/, "")}/chat/completions`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://knowledge.axelyn.com",
-        "X-OpenRouter-Title": "Axelyn Knowledge",
-      },
-      body: JSON.stringify({
-        model: requestedModel,
-        messages: buildExtractionMessages(source),
-        provider: {
-          require_parameters: true,
-          data_collection: "deny",
+    let response: Response;
+    try {
+      response = await fetch(`${this.baseUrl.replace(/\/$/, "")}/chat/completions`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://knowledge.axelyn.com",
+          "X-OpenRouter-Title": "Axelyn Knowledge",
         },
-        response_format: {
-          type: "json_schema",
-          json_schema: {
-            name: "knowledge_extraction",
-            strict: true,
-            schema: EXTRACTION_JSON_SCHEMA,
+        body: JSON.stringify({
+          model: requestedModel,
+          messages: buildExtractionMessages(source),
+          provider: {
+            require_parameters: true,
+            data_collection: "deny",
           },
-        },
-      }),
-      signal: AbortSignal.timeout(45_000),
-    });
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "knowledge_extraction",
+              strict: true,
+              schema: EXTRACTION_JSON_SCHEMA,
+            },
+          },
+        }),
+        signal: AbortSignal.timeout(EXTRACTION_TIMEOUT_MS),
+      });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "TimeoutError") {
+        throw new Error(`Extraction provider timed out after ${EXTRACTION_TIMEOUT_MS / 1_000}s.`);
+      }
+      throw error;
+    }
 
     if (!response.ok) {
-      throw new Error(`Extraction provider returned HTTP ${response.status}.`);
+      throw await providerFailure(response);
     }
 
     const payload = (await response.json()) as {
