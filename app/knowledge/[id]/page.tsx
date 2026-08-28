@@ -38,7 +38,7 @@ export default async function NodeDetail({
           <Link
             className={cn(
               buttonVariants({ size: "lg", variant: "outline" }),
-              "rounded-full border-slate-200 bg-white/80 px-4",
+              "border-[#d7d0c5] bg-[#fffdf8] px-4",
             )}
             href={`/memory-map?workspace=${workspace}&node_id=${node.id}`}
           >
@@ -57,7 +57,7 @@ export default async function NodeDetail({
               <TrustBadge kind="sensitivity" value={node.sensitivity} />
             </div>
 
-            <blockquote className="border-l-4 border-cyan-200 pl-6 font-serif text-3xl leading-tight tracking-tight text-slate-950 sm:text-4xl">
+            <blockquote className="border-l-[3px] border-[#ccb287] pl-6 font-serif text-3xl leading-tight tracking-tight text-slate-950 sm:text-4xl">
               {node.canonical_statement}
             </blockquote>
 
@@ -69,7 +69,7 @@ export default async function NodeDetail({
                 ["Usefulness", node.usefulness_score.toFixed(2)],
               ].map(([label, value]) => (
                 <div
-                  className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-4"
+                  className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]"
                   key={label}
                 >
                   <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
@@ -86,7 +86,7 @@ export default async function NodeDetail({
 
             <div className="space-y-3">
               <details
-                className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-4"
+                className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]"
                 open
               >
                 <summary className="cursor-pointer text-sm font-semibold text-slate-900">
@@ -96,14 +96,14 @@ export default async function NodeDetail({
                   <div className="mt-4 space-y-3">
                     {node.provenance.map((reference) => (
                       <div
-                        className="rounded-[20px] border border-slate-200/80 bg-white/85 p-4"
+                        className="rounded-[14px] border border-[#ddd6ca] bg-white/82 p-4"
                         key={`${String(reference.source_id)}-${String(reference.excerpt)}`}
                       >
                         <strong className="block text-sm text-slate-900">
                           {String(reference.source_system)}:{String(reference.external_id)}:v
                           {String(reference.source_version)}
                         </strong>
-                        <p className="mt-3 border-l-2 border-cyan-200 pl-4 text-sm leading-6 text-slate-700">
+                        <p className="mt-3 border-l-2 border-[#ccb287] pl-4 text-sm leading-6 text-slate-700">
                           “{String(reference.excerpt)}”
                         </p>
                       </div>
@@ -116,14 +116,14 @@ export default async function NodeDetail({
                 )}
               </details>
 
-              <details className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-4">
+              <details className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
                 <summary className="cursor-pointer text-sm font-semibold text-slate-900">
                   Version history ({node.versions.length})
                 </summary>
                 <ol className="mt-4 space-y-3">
                   {node.versions.map((version) => (
                     <li
-                      className="rounded-[20px] border border-slate-200/80 bg-white/85 p-4"
+                      className="rounded-[14px] border border-[#ddd6ca] bg-white/82 p-4"
                       key={String(version.id)}
                     >
                       <strong className="block text-sm text-slate-900">
@@ -141,17 +141,17 @@ export default async function NodeDetail({
                 </ol>
               </details>
 
-              <details className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-4">
+              <details className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
                 <summary className="cursor-pointer text-sm font-semibold text-slate-900">
                   Relationships ({node.relationships.length})
                 </summary>
                 <ul className="mt-4 space-y-3">
                   {node.relationships.map((edge) => (
                     <li
-                      className="rounded-[20px] border border-slate-200/80 bg-white/85 p-4"
+                      className="rounded-[14px] border border-[#ddd6ca] bg-white/82 p-4"
                       key={String(edge.id)}
                     >
-                      <span className="font-mono text-xs uppercase tracking-[0.16em] text-cyan-700">
+                      <span className="font-mono text-xs uppercase tracking-[0.16em] text-[#8b6736]">
                         {String(edge.direction)} · {String(edge.type)}
                       </span>
                       <div className="mt-2 text-sm leading-6 text-slate-700">
@@ -166,7 +166,7 @@ export default async function NodeDetail({
                 </ul>
               </details>
 
-              <details className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-4">
+              <details className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
                 <summary className="cursor-pointer text-sm font-semibold text-slate-900">
                   Contradictions ({node.contradictions.length})
                 </summary>
@@ -182,14 +182,14 @@ export default async function NodeDetail({
                 </ul>
               </details>
 
-              <details className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-4">
+              <details className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
                 <summary className="cursor-pointer text-sm font-semibold text-slate-900">
                   Usage history ({node.usage.length})
                 </summary>
                 <ul className="mt-4 space-y-3">
                   {node.usage.slice(0, 30).map((usage) => (
                     <li
-                      className="rounded-[20px] border border-slate-200/80 bg-white/85 p-4"
+                      className="rounded-[14px] border border-[#ddd6ca] bg-white/82 p-4"
                       key={String(usage.id)}
                     >
                       <strong className="block text-sm text-slate-900">
@@ -227,7 +227,7 @@ export default async function NodeDetail({
               <label className="block space-y-2 text-sm font-medium text-slate-800">
                 <span>Atomic statement</span>
                 <Textarea
-                  className="min-h-[220px] rounded-[24px]"
+                  className="min-h-[220px]"
                   defaultValue={node.canonical_statement}
                   name="canonical_statement"
                   required
@@ -300,7 +300,7 @@ export default async function NodeDetail({
                 />
               </label>
 
-              <Button className="w-full rounded-full" size="lg" type="submit">
+              <Button className="w-full" size="lg" type="submit">
                 Save new version
               </Button>
             </form>
@@ -333,7 +333,7 @@ export default async function NodeDetail({
                 <Input minLength={3} name="reason" required />
               </label>
 
-              <Button className="w-full rounded-full" size="lg" type="submit" variant="outline">
+              <Button className="w-full" size="lg" type="submit" variant="outline">
                 Merge after review
               </Button>
             </form>
@@ -350,7 +350,7 @@ export default async function NodeDetail({
               <input type="hidden" name="workspace_id" value={workspace} />
               <input type="hidden" name="node_id" value={node.id} />
               <input type="hidden" name="reason" value="Archived by operator from node detail" />
-              <Button className="w-full rounded-full" size="lg" type="submit" variant="destructive">
+              <Button className="w-full" size="lg" type="submit" variant="destructive">
                 Archive node
               </Button>
             </form>

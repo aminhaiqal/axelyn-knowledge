@@ -63,6 +63,9 @@ const navigation = [
   },
 ] as const;
 
+const topMetaClassName =
+  "rounded-[14px] border border-[#d7d0c5] bg-[#fffdf8]/92 px-4 py-2.5 shadow-[0_8px_20px_rgba(15,23,42,0.04)]";
+
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -87,10 +90,10 @@ function NavLinks({
           <Link
             aria-current={active ? "page" : undefined}
             className={cn(
-              "group flex items-center gap-3 rounded-[22px] border px-4 py-3 transition-all",
+              "group flex items-center gap-3 rounded-[18px] border px-4 py-3 transition-colors",
               active
-                ? "border-cyan-400/30 bg-cyan-400/10 text-white shadow-[0_18px_35px_rgba(8,145,178,0.18)]"
-                : "border-transparent text-slate-200/88 hover:border-white/10 hover:bg-white/5 hover:text-white",
+                ? "border-[#b78642]/45 bg-[#182231] text-[#fff7ec]"
+                : "border-transparent text-slate-300 hover:border-white/10 hover:bg-white/[0.04] hover:text-white",
             )}
             href={`${item.href}?workspace=${workspace}`}
             key={item.href}
@@ -98,10 +101,10 @@ function NavLinks({
           >
             <span
               className={cn(
-                "flex size-10 items-center justify-center rounded-2xl border transition-colors",
+                "flex size-10 items-center justify-center rounded-[14px] border transition-colors",
                 active
-                  ? "border-cyan-300/30 bg-cyan-300/12 text-cyan-100"
-                  : "border-white/8 bg-white/6 text-slate-300 group-hover:border-white/14 group-hover:text-white",
+                  ? "border-[#b78642]/35 bg-[#b78642]/12 text-[#f0dab1]"
+                  : "border-white/10 bg-white/[0.03] text-slate-400 group-hover:border-white/14 group-hover:text-white",
               )}
             >
               <Icon className="size-4" />
@@ -134,29 +137,29 @@ export function AdminShell({
     navigation.find((item) => isActivePath(pathname, item.href))?.label ?? "Knowledge";
 
   return (
-    <div className="min-h-screen bg-transparent lg:flex">
-      <aside className="sticky top-0 hidden h-dvh w-80 shrink-0 border-r border-white/6 bg-[#0c1627] lg:flex lg:flex-col">
+    <div className="min-h-screen bg-transparent lg:grid lg:grid-cols-[288px_minmax(0,1fr)]">
+      <aside className="sticky top-0 hidden h-dvh shrink-0 border-r border-[#233043] bg-[#0f1722] lg:flex lg:flex-col">
         <div className="flex h-full flex-col px-6 py-7 text-slate-100">
           <Link
-            className="flex items-center gap-4 rounded-3xl border border-white/10 bg-white/4 px-4 py-4"
+            className="flex items-center gap-4 rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-4"
             href={`/?workspace=${workspace}`}
           >
-            <span className="flex size-12 items-center justify-center rounded-2xl border border-cyan-300/24 bg-cyan-300/10 font-mono text-xs tracking-[0.24em] text-cyan-100">
-              A/
+            <span className="flex size-12 items-center justify-center rounded-[16px] border border-[#b78642]/40 bg-[#b78642]/12 font-mono text-xs tracking-[0.2em] text-[#f0dab1]">
+              AK
             </span>
             <span className="min-w-0">
               <span className="block font-serif text-[1.6rem] leading-none tracking-tight">
                 Axelyn
               </span>
-              <span className="mt-1 block text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">
+              <span className="mt-1 block font-mono text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400">
                 Knowledge
               </span>
             </span>
           </Link>
 
           <p className="mt-5 max-w-xs text-sm leading-6 text-slate-400">
-            Trust-aware editorial memory for operator review, retrieval inspection, and durable
-            source intake.
+            Operator workspace for source intake, review, retrieval inspection, and durable memory
+            curation.
           </p>
 
           <div className="mt-8 flex-1">
@@ -165,15 +168,15 @@ export function AdminShell({
 
           <Separator className="my-5 bg-white/8" />
 
-          <div className="space-y-4 rounded-[28px] border border-white/8 bg-white/4 p-4">
+          <div className="space-y-4 rounded-[20px] border border-white/8 bg-white/[0.03] p-4">
             <div className="space-y-1">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-slate-500">
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 Workspace
               </p>
               <p className="truncate text-sm font-semibold text-slate-100">{workspace}</p>
             </div>
             <div className="space-y-1">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-slate-500">
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 Operator
               </p>
               <p className="truncate text-sm text-slate-300" title={operator.email}>
@@ -183,14 +186,14 @@ export function AdminShell({
           </div>
 
           <p className="mt-4 text-xs leading-5 text-slate-500">
-            Approval activates knowledge. Verification remains explicit and separate.
+            Approval activates memory. Verification stays explicit and separate.
           </p>
         </div>
       </aside>
 
       <main className="min-w-0 flex-1">
         <Sheet onOpenChange={setNavOpen} open={navOpen}>
-          <div className="sticky top-0 z-30 border-b border-slate-200/70 bg-[color:var(--background)]/85 backdrop-blur-xl">
+          <div className="sticky top-0 z-30 border-b border-[#d7d0c5] bg-[#f7f2ea]/88 backdrop-blur-xl">
             <div className="mx-auto flex max-w-[1440px] items-center gap-3 px-4 py-4 sm:px-6 lg:px-8">
               <Button
                 className="lg:hidden"
@@ -203,28 +206,28 @@ export function AdminShell({
               </Button>
 
               <div className="hidden min-w-0 items-center gap-3 md:flex">
-                <div className="rounded-full border border-slate-200 bg-white/70 px-4 py-2 shadow-sm">
-                  <span className="block text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                <div className={topMetaClassName}>
+                  <span className="block font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Current surface
                   </span>
-                  <span className="block text-sm font-semibold tracking-tight text-slate-900">
+                  <span className="block text-sm font-semibold tracking-[-0.03em] text-slate-900">
                     {currentSurface}
                   </span>
                 </div>
-                <div className="hidden min-w-[220px] rounded-full border border-slate-200 bg-white/70 px-4 py-2 shadow-sm sm:block">
-                  <span className="block text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                <div className={cn(topMetaClassName, "hidden min-w-[220px] sm:block")}>
+                  <span className="block font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Workspace
                   </span>
-                  <span className="block truncate text-sm font-semibold tracking-tight text-slate-900">
+                  <span className="block truncate text-sm font-semibold tracking-[-0.03em] text-slate-900">
                     {workspace}
                   </span>
                 </div>
               </div>
 
-              <div className="ml-auto flex min-w-0 items-center gap-3 rounded-full border border-slate-200 bg-white/78 px-4 py-2 shadow-sm">
-                <span className="hidden size-2 rounded-full bg-emerald-500 shadow-[0_0_0_6px_rgba(16,185,129,0.14)] sm:block" />
+              <div className={cn(topMetaClassName, "ml-auto flex min-w-0 items-center gap-3")}>
+                <span className="hidden size-2 rounded-full bg-emerald-500 shadow-[0_0_0_5px_rgba(16,185,129,0.14)] sm:block" />
                 <div className="min-w-0">
-                  <span className="block text-[10px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                  <span className="block font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
                     Operator session
                   </span>
                   <span className="block truncate text-sm font-medium text-slate-900">
@@ -236,13 +239,13 @@ export function AdminShell({
           </div>
 
           <SheetContent
-            className="w-[320px] border-l-0 border-r border-white/10 bg-[#0c1627] p-0 text-slate-100"
+            className="w-[320px] border-l-0 border-r border-white/10 bg-[#0f1722] p-0 text-slate-100"
             side="left"
           >
             <SheetHeader className="space-y-3 border-b border-white/8 px-6 py-6 text-left">
               <SheetTitle className="font-serif text-2xl text-white">Axelyn Knowledge</SheetTitle>
               <SheetDescription className="text-sm leading-6 text-slate-400">
-                Trust-aware editorial memory for review, retrieval, and source intake.
+                Operator workspace for review, retrieval, and source intake.
               </SheetDescription>
             </SheetHeader>
 
