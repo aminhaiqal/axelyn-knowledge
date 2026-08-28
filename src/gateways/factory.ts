@@ -5,7 +5,7 @@ import { OpenRouterExtractionGateway } from "@/src/gateways/openrouter-extractio
 export function createExtractionGateway() {
   const provider = extractionProvider();
   return provider
-    ? new OpenRouterExtractionGateway(provider.apiKey, provider.model, provider.baseUrl)
+    ? new OpenRouterExtractionGateway(provider.apiKey, provider.models, provider.baseUrl)
     : null;
 }
 

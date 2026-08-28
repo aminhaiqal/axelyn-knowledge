@@ -10,6 +10,18 @@ const ProviderSchema = z.object({
   baseUrl: z.string().url(),
 });
 
+const ExtractionProviderSchema = z.object({
+  apiKey: z.string().min(1),
+  models: z.array(z.string().trim().min(1)).min(1).max(5),
+  baseUrl: z.string().url(),
+});
+
+export const DEFAULT_EXTRACTION_MODELS = [
+  "google/gemini-2.5-flash-lite",
+  "openai/gpt-5-mini",
+  "anthropic/claude-sonnet-4.6",
+] as const;
+
 export interface ServiceCredential {
   id: string;
   secret: string;
@@ -26,12 +38,23 @@ export function databaseUrl(): string {
 }
 
 export function extractionProvider() {
+  const configuredModels = process.env.EXTRACTION_MODELS ?? process.env.EXTRACTION_MODEL;
+  const models = configuredModels
+    ? [
+        ...new Set(
+          configuredModels
+            .split(",")
+            .map((model) => model.trim())
+            .filter(Boolean),
+        ),
+      ]
+    : [...DEFAULT_EXTRACTION_MODELS];
   const candidate = {
-    apiKey: process.env.EXTRACTION_API_KEY,
-    model: process.env.EXTRACTION_MODEL,
+    apiKey: process.env.EXTRACTION_API_KEY ?? process.env.OPENROUTER_API_KEY,
+    models,
     baseUrl: process.env.EXTRACTION_BASE_URL ?? "https://openrouter.ai/api/v1",
   };
-  const parsed = ProviderSchema.safeParse(candidate);
+  const parsed = ExtractionProviderSchema.safeParse(candidate);
   return parsed.success ? parsed.data : null;
 }
 

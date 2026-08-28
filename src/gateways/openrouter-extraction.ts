@@ -1,5 +1,6 @@
 import { ExtractionOutputSchema } from "@/src/domain/schemas";
 import type { KnowledgeSource } from "@/src/domain/models";
+import { validateGroundedExtraction } from "@/src/domain/extraction-quality";
 import type { KnowledgeExtractionGateway } from "@/src/gateways/types";
 import { buildExtractionMessages } from "@/src/gateways/extraction-prompt";
 
@@ -114,25 +115,53 @@ const EXTRACTION_JSON_SCHEMA = {
 } as const;
 
 export class OpenRouterExtractionGateway implements KnowledgeExtractionGateway {
-  readonly name = "openrouter-compatible";
+  readonly name = "openrouter-cascade";
+  readonly model: string;
 
   constructor(
     private readonly apiKey: string,
-    public readonly model: string,
+    private readonly models: readonly string[],
     private readonly baseUrl: string,
-  ) {}
+  ) {
+    if (models.length === 0) throw new Error("At least one extraction model is required.");
+    this.model = models.join(" -> ");
+  }
 
   async extract(source: KnowledgeSource) {
+    const failures: string[] = [];
+
+    for (const [index, requestedModel] of this.models.entries()) {
+      try {
+        const result = await this.extractWithModel(source, requestedModel);
+        validateGroundedExtraction(source, result.output, {
+          requireProposal: index < this.models.length - 1,
+        });
+        return result;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Unknown provider failure.";
+        failures.push(`${requestedModel}: ${message}`);
+      }
+    }
+
+    throw new Error(`All extraction models failed. ${failures.join(" | ")}`);
+  }
+
+  private async extractWithModel(source: KnowledgeSource, requestedModel: string) {
     const response = await fetch(`${this.baseUrl.replace(/\/$/, "")}/chat/completions`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://knowledge.axelyn.com",
+        "X-OpenRouter-Title": "Axelyn Knowledge",
       },
       body: JSON.stringify({
-        model: this.model,
-        temperature: 0,
+        model: requestedModel,
         messages: buildExtractionMessages(source),
+        provider: {
+          require_parameters: true,
+          data_collection: "deny",
+        },
         response_format: {
           type: "json_schema",
           json_schema: {
@@ -142,7 +171,7 @@ export class OpenRouterExtractionGateway implements KnowledgeExtractionGateway {
           },
         },
       }),
-      signal: AbortSignal.timeout(60_000),
+      signal: AbortSignal.timeout(45_000),
     });
 
     if (!response.ok) {
@@ -150,11 +179,15 @@ export class OpenRouterExtractionGateway implements KnowledgeExtractionGateway {
     }
 
     const payload = (await response.json()) as {
+      model?: string;
       choices?: Array<{ message?: { content?: string | Array<{ text?: string }> } }>;
     };
     const raw = payload.choices?.[0]?.message?.content;
     const content = Array.isArray(raw) ? raw.map((part) => part.text ?? "").join("") : raw;
     if (!content) throw new Error("Extraction provider returned no structured content.");
-    return ExtractionOutputSchema.parse(JSON.parse(content));
+    return {
+      output: ExtractionOutputSchema.parse(JSON.parse(content)),
+      model: payload.model ?? requestedModel,
+    };
   }
 }

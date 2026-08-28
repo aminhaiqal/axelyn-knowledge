@@ -4,6 +4,7 @@ import { withTransaction, query } from "@/src/db/pool";
 import { mapSource, vectorLiteral } from "@/src/db/records";
 import { conflict, notFound } from "@/src/domain/errors";
 import type { Origin, Sensitivity, Verification } from "@/src/domain/enums";
+import { validateGroundedExtraction } from "@/src/domain/extraction-quality";
 import type { KnowledgeSource } from "@/src/domain/models";
 import { sha256, statementHash } from "@/src/domain/normalize";
 import type { ExtractionOutput, SourceIngestionInput } from "@/src/domain/schemas";
@@ -346,14 +347,17 @@ export class SourceService {
     );
 
     try {
+      const extracted = await this.extractionGateway.extract(source);
       const proposals = applyOperatorIntakeSensitivity(
         source,
-        ensureApprovedArtifact(
-          source,
-          ExtractionOutputSchema.parse(await this.extractionGateway.extract(source)),
-        ),
+        ensureApprovedArtifact(source, ExtractionOutputSchema.parse(extracted.output)),
       );
-      this.validateExcerpts(source, proposals);
+      validateGroundedExtraction(source, proposals);
+      await query(`UPDATE knowledge_extractions SET gateway = $2, model = $3 WHERE id = $1`, [
+        extraction.id,
+        this.extractionGateway.name,
+        extracted.model,
+      ]);
       const embeddings = await this.embedProposals(proposals);
       const created = await this.persistProposals(
         source,
@@ -366,6 +370,7 @@ export class SourceService {
         workspace_id: workspaceId,
         source_id: sourceId,
         extraction_id: extraction.id,
+        model: extracted.model,
         nodes: created.nodes.length,
         edges: created.edges.length,
       });
@@ -382,14 +387,6 @@ export class SourceService {
         "EXTRACTION_FAILED",
         error instanceof Error ? error.message.slice(0, 1_000) : "Unknown extraction failure.",
       );
-    }
-  }
-
-  private validateExcerpts(source: KnowledgeSource, proposals: ExtractionOutput) {
-    for (const proposal of [...proposals.nodes, ...proposals.edges]) {
-      if (!source.content.includes(proposal.source_excerpt)) {
-        throw new Error("A proposed supporting excerpt is not present in the immutable source.");
-      }
     }
   }
 

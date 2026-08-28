@@ -60,9 +60,9 @@ Open **Add knowledge** in the sidebar to create a source from:
 - PDF, TXT, Markdown, CSV, JSON, or HTML files up to 8 MB; or
 - one public web page or PDF URL.
 
-The console preserves readable source text as an immutable provenance record, then uses the configured extraction gateway to create atomic node and relationship proposals. Proposals remain `UNVERIFIED` and `PROPOSED` until reviewed in the **Inbox**. The operator-selected sensitivity is applied to every proposal from that import.
+The console preserves readable source text as an immutable provenance record, then uses the configured extraction gateway to create atomic node and relationship proposals. By default, one OpenRouter key drives a cost-aware model cascade: Gemini 2.5 Flash Lite handles routine extraction, GPT-5 Mini retries output that fails schema or provenance validation, and Claude Sonnet 4.6 is the final quality fallback. Set `EXTRACTION_MODELS` to override that order or the legacy `EXTRACTION_MODEL` to force one model. Proposals remain `UNVERIFIED` and `PROPOSED` until reviewed in the **Inbox**. The operator-selected sensitivity is applied to every proposal from that import.
 
-PDF import supports text-based documents with up to 150 pages; image-only scans require OCR before upload. Website import fetches one public page without executing JavaScript or following links. Local and private network destinations are blocked. If extraction is not configured, the source is still saved and the failed attempt appears on the Register.
+PDF import supports text-based documents with up to 150 pages; image-only scans require OCR before upload. Website import fetches one public page without executing JavaScript or following links. Local and private network destinations are blocked. If extraction is not configured, the source is still saved and the failed attempt appears on the Register. Configure `EXTRACTION_API_KEY` (or `OPENROUTER_API_KEY`) to enable the default cascade.
 
 ### Migration and seed commands
 
