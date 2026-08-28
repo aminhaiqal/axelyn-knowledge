@@ -8,7 +8,7 @@
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-serif);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -54,39 +54,39 @@
   --font-serif: "Newsreader Variable", Georgia, serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 
-  --radius: 1rem;
+  --radius: 0px;
 
-  --background: #f4efe6;
-  --foreground: #152031;
-  --card: #fffdf8;
-  --card-foreground: #152031;
-  --popover: #fffdf8;
-  --popover-foreground: #152031;
-  --primary: #182231;
-  --primary-foreground: #fffaf1;
-  --secondary: #ece4d7;
-  --secondary-foreground: #152031;
-  --muted: #f0e9dd;
-  --muted-foreground: #5f6774;
-  --accent: #b78642;
-  --accent-foreground: #152031;
-  --destructive: #b54b50;
-  --border: #d8d0c3;
-  --input: #d6cec1;
-  --ring: #b78642;
-  --chart-1: #31567d;
-  --chart-2: #567b61;
-  --chart-3: #b78642;
-  --chart-4: #80596c;
-  --chart-5: #a45247;
-  --sidebar: #0f1722;
-  --sidebar-foreground: #f8f3ea;
-  --sidebar-primary: #b78642;
-  --sidebar-primary-foreground: #fffaf1;
-  --sidebar-accent: #182231;
-  --sidebar-accent-foreground: #f8f3ea;
-  --sidebar-border: #233043;
-  --sidebar-ring: #b78642;
+  --background: #f5f7fa;
+  --foreground: #141923;
+  --card: #fcfcfd;
+  --card-foreground: #141923;
+  --popover: #fcfcfd;
+  --popover-foreground: #141923;
+  --primary: #3557ff;
+  --primary-foreground: #ffffff;
+  --secondary: #edf1f7;
+  --secondary-foreground: #141923;
+  --muted: #f4f6fa;
+  --muted-foreground: #697282;
+  --accent: #3557ff;
+  --accent-foreground: #ffffff;
+  --destructive: #b54758;
+  --border: #dce3ed;
+  --input: #d6deea;
+  --ring: #3557ff;
+  --chart-1: #3557ff;
+  --chart-2: #7c8fb1;
+  --chart-3: #151a22;
+  --chart-4: #4f6581;
+  --chart-5: #9aa6ba;
+  --sidebar: #11151d;
+  --sidebar-foreground: #f7f9fc;
+  --sidebar-primary: #3557ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #171c25;
+  --sidebar-accent-foreground: #f7f9fc;
+  --sidebar-border: #242b37;
+  --sidebar-ring: #3557ff;
 }
 
 * {
@@ -100,11 +100,11 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top right, rgb(183 134 66 / 12%), transparent 24%),
-    radial-gradient(circle at left 18%, rgb(15 23 34 / 4%), transparent 32%),
-    linear-gradient(180deg, #f8f4ed 0%, #f4efe6 54%, #ece6d9 100%);
-  background-attachment: fixed;
+  background-color: var(--background);
+  background-image:
+    linear-gradient(to right, rgb(20 25 35 / 4%) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(20 25 35 / 4%) 1px, transparent 1px);
+  background-size: 40px 40px;
   color: var(--foreground);
 }
 
@@ -127,7 +127,7 @@ a {
   }
 
   ::selection {
-    background: rgb(216 197 164 / 60%);
+    background: rgb(53 87 255 / 18%);
     color: #111827;
   }
 }

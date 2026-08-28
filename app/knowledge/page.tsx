@@ -159,7 +159,7 @@ export default async function KnowledgeLibrary({
         <Surface className="overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="border-[#ddd5c9] bg-[#f5f1e8] hover:bg-[#f5f1e8]">
+              <TableRow className="border-[#dce3ed] bg-[#f7f9fc] hover:bg-[#f7f9fc]">
                 <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
                   Atomic knowledge
                 </TableHead>
@@ -179,14 +179,14 @@ export default async function KnowledgeLibrary({
                 <TableRow className="border-slate-200/70" key={node.id}>
                   <TableCell className="px-6 py-5 align-top whitespace-normal">
                     <Link
-                      className="block text-base font-semibold tracking-tight text-slate-950 transition-colors hover:text-[#8b6736]"
+                      className="block text-base font-semibold tracking-tight text-slate-950 transition-colors hover:text-[#3557ff]"
                       href={`/knowledge/${node.id}?workspace=${workspace}`}
                     >
                       {node.canonical_statement}
                     </Link>
                     <span className="mt-2 block text-sm text-slate-500">{node.title}</span>
                   </TableCell>
-                  <TableCell className="px-6 py-5 align-top font-mono text-xs uppercase tracking-[0.16em] whitespace-normal text-[#8b6736]">
+                  <TableCell className="px-6 py-5 align-top font-mono text-xs uppercase tracking-[0.16em] whitespace-normal text-[#3557ff]">
                     {node.type}
                   </TableCell>
                   <TableCell className="px-6 py-5 align-top whitespace-normal">
@@ -214,10 +214,7 @@ export default async function KnowledgeLibrary({
       {result.next_cursor ? (
         <div className="flex justify-end">
           <Link
-            className={cn(
-              buttonVariants({ size: "lg", variant: "outline" }),
-              "border-[#d7d0c5] bg-[#fffdf8] px-4",
-            )}
+            className={cn(buttonVariants({ size: "lg", variant: "outline" }), "px-4")}
             href={`/knowledge?${preserved.toString()}&cursor=${encodeURIComponent(result.next_cursor)}`}
           >
             Next page
@@ -225,11 +222,11 @@ export default async function KnowledgeLibrary({
         </div>
       ) : null}
 
-      <details className="rounded-[20px] border border-[#d8d0c3] bg-white/84 shadow-[0_18px_44px_rgba(15,23,42,0.06)]">
+      <details className="border border-[#dce3ed] bg-[#fcfcfd]">
         <summary className="cursor-pointer px-6 py-5 text-2xl font-semibold tracking-[-0.04em] text-slate-950">
           Add one exact atomic statement instead
         </summary>
-        <div className="border-t border-[#ddd5c9] px-6 py-6">
+        <div className="border-t border-[#dce3ed] px-6 py-6">
           <SectionHeader
             eyebrow="Operator-authored proposal"
             title="Create one atomic idea"

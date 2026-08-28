@@ -17,9 +17,9 @@ export default async function AddKnowledgePage({
   return (
     <AdminShell operator={operator} workspace={workspace}>
       <PageHeader
-        eyebrow="Source intake / provenance first"
-        title="Add knowledge from what you already have"
-        description="Paste material, upload a document, or bring in one public web page. Axelyn preserves the source, extracts reusable ideas, and puts every proposal in your review queue."
+        eyebrow="Raw input / editorial workspace"
+        title="What did you notice?"
+        description="Capture the observation as it is. Axelyn preserves the source, extracts reusable ideas, and routes every decision to review."
       />
       <KnowledgeIntake workspace={workspace} />
     </AdminShell>

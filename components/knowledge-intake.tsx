@@ -55,17 +55,17 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_360px]">
       <Surface className="overflow-hidden">
-        <div className="border-b border-slate-200/80 px-6 py-6 sm:px-8">
+        <div className="border-b border-[#dce3ed] px-6 py-5 sm:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-2">
-              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8b6736]">
-                Choose source material
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#3557ff]">
+                Input
               </p>
-              <h2 className="text-3xl leading-none font-semibold tracking-[-0.04em] text-slate-950 sm:text-4xl">
-                What do you want the system to learn from?
+              <h2 className="text-lg leading-none font-semibold tracking-[-0.03em] text-slate-950 sm:text-xl">
+                Capture the source as it is.
               </h2>
             </div>
-            <span className="inline-flex items-center rounded-[12px] border border-[#ddd5c9] bg-[#f5f1e8] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
+            <span className="inline-flex items-center border border-[#dce3ed] bg-[#f7f9fc] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
               Source 01
             </span>
           </div>
@@ -77,17 +77,17 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
               <Button
                 aria-pressed={kind === channel.id}
                 className={cn(
-                  "h-auto min-h-28 w-full justify-start rounded-[18px] px-4 py-4 text-left shadow-none",
+                  "h-auto min-h-28 w-full justify-start px-4 py-4 text-left shadow-none",
                   kind === channel.id
-                    ? "border-[#b78642]/40 bg-[#efe5d3] text-slate-950 hover:bg-[#ece0cb]"
-                    : "border-[#ddd6ca] bg-[#faf7f1] text-slate-700 hover:bg-white",
+                    ? "border-[#3557ff] bg-[#f3f6ff] text-slate-950 hover:bg-[#edf2ff]"
+                    : "border-[#dce3ed] bg-white text-slate-700 hover:bg-[#f8fbff]",
                 )}
                 key={channel.id}
                 onClick={() => setKind(channel.id)}
                 type="button"
                 variant={kind === channel.id ? "secondary" : "outline"}
               >
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-[14px] border border-[#ddd6ca] bg-white/92 font-mono text-xs tracking-[0.2em] text-[#8b6736]">
+                <span className="flex size-10 shrink-0 items-center justify-center border border-[#dce3ed] bg-white font-mono text-xs tracking-[0.2em] text-[#3557ff]">
                   {channel.symbol}
                 </span>
                 <span className="space-y-2">
@@ -108,7 +108,7 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
             {state.status === "error" ? (
               <div
                 aria-live="polite"
-                className="rounded-[16px] border border-rose-200/80 bg-rose-50/80 px-4 py-4 text-sm leading-6 text-rose-700"
+                className="border border-rose-200 bg-rose-50 px-4 py-4 text-sm leading-6 text-rose-700"
               >
                 <strong className="font-semibold">Import stopped.</strong> {state.message}
               </div>
@@ -117,18 +117,18 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
             {state.status === "success" ? (
               <div
                 className={cn(
-                  "grid gap-4 rounded-[18px] border px-5 py-5 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center",
+                  "grid gap-4 border px-5 py-5 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center",
                   state.extractionStatus === "SUCCEEDED"
                     ? "border-emerald-200/80 bg-emerald-50/80"
-                    : "border-amber-200/80 bg-amber-50/85",
+                    : "border-[#cfd9ee] bg-[#f3f6ff]",
                 )}
                 role="status"
               >
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "flex size-10 items-center justify-center rounded-full text-sm font-bold text-white",
-                    state.extractionStatus === "SUCCEEDED" ? "bg-emerald-600" : "bg-amber-600",
+                    "flex size-10 items-center justify-center text-sm font-bold text-white",
+                    state.extractionStatus === "SUCCEEDED" ? "bg-emerald-600" : "bg-[#3557ff]",
                   )}
                 >
                   {state.extractionStatus === "SUCCEEDED" ? "✓" : "!"}
@@ -147,14 +147,11 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
                       <span>{state.proposedEdges} relationship proposals</span>
                     </div>
                   ) : (
-                    <p className="text-sm leading-6 text-amber-700">{state.extractionMessage}</p>
+                    <p className="text-sm leading-6 text-[#3557ff]">{state.extractionMessage}</p>
                   )}
                 </div>
                 <Link
-                  className={cn(
-                    buttonVariants({ size: "lg", variant: "outline" }),
-                    "border-white/70 bg-white/90",
-                  )}
+                  className={cn(buttonVariants({ size: "lg", variant: "outline" }), "bg-white")}
                   href={
                     state.extractionStatus === "SUCCEEDED"
                       ? `/inbox?workspace=${workspace}`
@@ -181,13 +178,13 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
               />
             </label>
 
-            <div className="rounded-[18px] border border-dashed border-[#d5cebf] bg-[#f5f1e8] p-5">
+            <div className="border border-[#dce3ed] bg-[#f7f9fc] p-5">
               {kind === "text" ? (
                 <label className="block space-y-3 text-sm font-medium text-slate-800">
                   <span>Paste your material</span>
                   <Textarea
                     autoFocus
-                    className="min-h-[260px] bg-white/95 p-4 leading-7"
+                    className="min-h-[320px] border-[#dce3ed] bg-white p-6 text-[clamp(1.5rem,2.8vw,2.35rem)] leading-[1.35] tracking-[-0.04em]"
                     minLength={1}
                     name="content"
                     placeholder="Paste notes, an article, a transcript, research, or any other source text here…"
@@ -200,8 +197,8 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
               ) : null}
 
               {kind === "file" ? (
-                <label className="flex min-h-[260px] flex-col items-center justify-center gap-3 rounded-[16px] border border-[#ddd6ca] bg-white/92 p-6 text-center">
-                  <span className="flex size-14 items-center justify-center rounded-[14px] border border-[#d9c39f] bg-[#f1e6d3] font-mono text-lg text-[#8b6736]">
+                <label className="flex min-h-[260px] flex-col items-center justify-center gap-3 border border-[#dce3ed] bg-white p-6 text-center">
+                  <span className="flex size-14 items-center justify-center border border-[#cfd9ee] bg-[#f3f6ff] font-mono text-lg text-[#3557ff]">
                     ↑
                   </span>
                   <strong className="text-3xl leading-none font-semibold tracking-[-0.04em] text-slate-950">
@@ -215,7 +212,7 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
                   </span>
                   <input
                     accept={ACCEPTED_FILE_TYPES}
-                    className="mt-2 block w-full max-w-md rounded-[14px] border border-[#ddd6ca] bg-white px-3 py-2 text-sm file:mr-3 file:rounded-[10px] file:border-0 file:bg-slate-950 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
+                    className="mt-2 block w-full max-w-md border border-[#dce3ed] bg-white px-3 py-2 text-sm file:mr-3 file:border-0 file:bg-slate-950 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
                     name="file"
                     required
                     type="file"
@@ -226,9 +223,9 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
               {kind === "website" ? (
                 <label className="block space-y-3 text-sm font-medium text-slate-800">
                   <span>Public website URL</span>
-                  <div className="rounded-[16px] border border-[#ddd6ca] bg-white/92 p-3">
-                    <div className="flex items-center gap-3 rounded-[12px] border border-[#ddd6ca] bg-white px-3">
-                      <span aria-hidden="true" className="font-mono text-xs text-[#8b6736]">
+                  <div className="border border-[#dce3ed] bg-white p-3">
+                    <div className="flex items-center gap-3 border border-[#dce3ed] bg-white px-3">
+                      <span aria-hidden="true" className="font-mono text-xs text-[#3557ff]">
                         ↗
                       </span>
                       <Input
@@ -249,7 +246,7 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
               ) : null}
             </div>
 
-            <div className="flex flex-col gap-4 border-t border-slate-200/80 pt-5 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-4 border-t border-[#dce3ed] pt-5 md:flex-row md:items-center md:justify-between">
               <p className="max-w-2xl text-sm leading-7 text-slate-600">
                 This creates review proposals. It does not publish knowledge or mark facts as
                 verified.
@@ -262,18 +259,25 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
         </div>
       </Surface>
 
-      <Surface className="border-[#233043] bg-[#0f1722] p-6 text-slate-100 shadow-[0_24px_60px_rgba(15,23,42,0.22)]">
+      <Surface className="border-[#242b37] bg-[#11151d] p-6 text-slate-100">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
-            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#d8b887]/80">
-              Import settings
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#3557ff]">
+              Pipeline
             </p>
-            <h2 className="font-serif text-3xl leading-none tracking-tight">Receipt</h2>
+            <h2 className="font-serif text-3xl leading-none tracking-tight">
+              Four bounded passes, one editorial decision.
+            </h2>
           </div>
-          <span className="rounded-[12px] border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-            Intake
+          <span className="border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+            Review
           </span>
         </div>
+
+        <p className="mt-4 max-w-sm text-sm leading-7 text-slate-400">
+          The pipeline preserves the source, extracts bounded ideas, and stops before anything is
+          published.
+        </p>
 
         <dl className="mt-8 space-y-4">
           <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
@@ -301,7 +305,7 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
             <dd className="min-w-[150px]">
               <NativeSelect
                 aria-label="Sensitivity"
-                className="border-white/14 bg-white/8 text-xs text-slate-100 focus:border-[#d8b887]/60 focus:ring-[#d8b887]/12"
+                className="border-white/14 bg-white/8 text-xs text-slate-100 focus:border-[#3557ff] focus:ring-[#3557ff]/10"
                 onChange={(event) => setSensitivity(event.target.value)}
                 value={sensitivity}
               >
@@ -325,9 +329,9 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
               ) : null}
               <span
                 className={cn(
-                  "relative z-10 flex size-6 shrink-0 items-center justify-center rounded-full border font-mono text-[10px]",
+                  "relative z-10 flex size-6 shrink-0 items-center justify-center border font-mono text-[10px]",
                   index === 0
-                    ? "border-[#d8b887]/40 bg-[#d8b887] text-slate-950"
+                    ? "border-[#3557ff] bg-[#3557ff] text-white"
                     : "border-white/14 bg-[#142033] text-slate-300",
                 )}
               >

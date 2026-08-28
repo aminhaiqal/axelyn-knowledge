@@ -1,11 +1,9 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export const surfaceClassName =
-  "rounded-[20px] border border-[#d8d0c3] bg-white/84 shadow-[0_18px_44px_rgba(15,23,42,0.06)]";
+export const surfaceClassName = "border border-[#dce3ed] bg-[#fcfcfd]";
 
-export const insetSurfaceClassName =
-  "rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]";
+export const insetSurfaceClassName = "border border-[#e1e7f0] bg-[#f7f9fc]";
 
 export function Surface({
   as: Component = "section",
@@ -37,15 +35,15 @@ export function SectionHeader({
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="space-y-2">
-        <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8b6736]">
+        <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#3557ff]">
           {eyebrow}
         </p>
         <div className="space-y-1">
-          <h2 className="text-[1.8rem] leading-none font-semibold tracking-[-0.04em] text-slate-950">
+          <h2 className="font-serif text-[clamp(1.9rem,4vw,3.6rem)] leading-[0.92] tracking-[-0.05em] text-slate-950">
             {title}
           </h2>
           {description ? (
-            <p className="max-w-2xl text-sm leading-6 text-slate-600">{description}</p>
+            <p className="max-w-2xl text-sm leading-6 text-slate-500">{description}</p>
           ) : null}
         </div>
       </div>
@@ -64,7 +62,7 @@ export function MetricCard({
   value: ReactNode;
 }) {
   return (
-    <Surface className="p-5">
+    <div className="border border-[#dce3ed] border-t-2 border-t-[#3557ff] bg-[#fbfcfe] p-5">
       <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
         {label}
       </p>
@@ -73,8 +71,8 @@ export function MetricCard({
           {value}
         </p>
       </div>
-      {description ? <p className="mt-3 text-sm leading-6 text-slate-600">{description}</p> : null}
-    </Surface>
+      {description ? <p className="mt-3 text-sm leading-6 text-slate-500">{description}</p> : null}
+    </div>
   );
 }
 
@@ -90,10 +88,10 @@ export function EmptyState({
   return (
     <Surface className="flex min-h-[220px] flex-col items-start justify-center gap-4 px-8 py-10 text-left">
       <div className="space-y-3">
-        <h3 className="text-3xl leading-none font-semibold tracking-[-0.04em] text-slate-950">
+        <h3 className="font-serif text-3xl leading-none tracking-[-0.04em] text-slate-950">
           {title}
         </h3>
-        <p className="max-w-xl text-sm leading-7 text-slate-600">{description}</p>
+        <p className="max-w-xl text-sm leading-7 text-slate-500">{description}</p>
       </div>
       {action}
     </Surface>

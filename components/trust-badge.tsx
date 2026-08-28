@@ -19,28 +19,28 @@ function toneFor(value: string) {
     normalized === "active"
   ) {
     return {
-      badge: "border-emerald-300/70 bg-emerald-50/85 text-emerald-800",
-      dot: "bg-emerald-700 text-emerald-50",
+      badge: "border-emerald-200 bg-emerald-50 text-emerald-800",
+      dot: "bg-emerald-600 text-white",
     };
   }
 
   if (normalized === "unverified" || normalized === "proposed" || normalized === "approved_copy") {
     return {
-      badge: "border-amber-300/70 bg-amber-50/90 text-amber-800",
-      dot: "bg-amber-700 text-amber-50",
+      badge: "border-[#cfd9ee] bg-[#f3f6ff] text-[#3557ff]",
+      dot: "bg-[#3557ff] text-white",
     };
   }
 
   if (normalized === "disputed" || normalized === "rejected" || normalized === "restricted") {
     return {
-      badge: "border-rose-300/70 bg-rose-50/90 text-rose-800",
-      dot: "bg-rose-700 text-rose-50",
+      badge: "border-rose-200 bg-rose-50 text-rose-700",
+      dot: "bg-rose-600 text-white",
     };
   }
 
   return {
-    badge: "border-slate-300/80 bg-[#f3ede2] text-slate-700",
-    dot: "bg-slate-600 text-slate-50",
+    badge: "border-[#dce3ed] bg-[#f6f8fb] text-slate-700",
+    dot: "bg-slate-500 text-white",
   };
 }
 
@@ -50,7 +50,7 @@ export function TrustBadge({ kind, value }: { kind: Kind; value: string }) {
   return (
     <Badge
       className={cn(
-        "h-7 rounded-[11px] border px-2.5 text-[10px] font-semibold uppercase tracking-[0.16em]",
+        "h-7 border px-2.5 text-[10px] font-semibold uppercase tracking-[0.16em]",
         tone.badge,
       )}
       variant="outline"
@@ -58,7 +58,7 @@ export function TrustBadge({ kind, value }: { kind: Kind; value: string }) {
       <span
         aria-hidden="true"
         className={cn(
-          "flex size-4 items-center justify-center rounded-[6px] text-[8px] font-bold tracking-normal",
+          "flex size-4 items-center justify-center text-[8px] font-bold tracking-normal",
           tone.dot,
         )}
       >

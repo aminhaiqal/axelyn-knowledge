@@ -84,11 +84,11 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
               <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
                 {VERIFICATION_LEVELS.map((value) => (
                   <label
-                    className="flex items-center gap-3 rounded-[14px] border border-[#ddd6ca] bg-white/82 px-3 py-3 text-sm font-medium text-slate-700"
+                    className="flex items-center gap-3 border border-[#dce3ed] bg-white px-3 py-3 text-sm font-medium text-slate-700"
                     key={value}
                   >
                     <input
-                      className="size-4 accent-[#8b6736]"
+                      className="size-4 accent-[#3557ff]"
                       defaultChecked
                       name="allowed_verification_levels"
                       type="checkbox"
@@ -100,18 +100,18 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
               </div>
             </div>
 
-            <details className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
+            <details className="border border-[#e1e7f0] bg-[#f7f9fc] p-4">
               <summary className="cursor-pointer text-sm font-semibold text-slate-800">
                 Limit node types
               </summary>
               <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
                 {NODE_TYPES.map((value) => (
                   <label
-                    className="flex items-center gap-3 rounded-[14px] border border-[#ddd6ca] bg-white/82 px-3 py-3 text-sm font-medium text-slate-700"
+                    className="flex items-center gap-3 border border-[#dce3ed] bg-white px-3 py-3 text-sm font-medium text-slate-700"
                     key={value}
                   >
                     <input
-                      className="size-4 accent-[#8b6736]"
+                      className="size-4 accent-[#3557ff]"
                       name="desired_node_types"
                       type="checkbox"
                       value={value}
@@ -131,7 +131,7 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
 
       <section aria-live="polite" className="space-y-6">
         {state.error ? (
-          <div className="rounded-[16px] border border-rose-200/80 bg-rose-50/80 px-4 py-4 text-sm leading-6 text-rose-700">
+          <div className="border border-rose-200 bg-rose-50 px-4 py-4 text-sm leading-6 text-rose-700">
             {state.error}
           </div>
         ) : null}
@@ -153,7 +153,7 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
               <ul className="mt-6 space-y-4">
                 {result.seed_results.map((seed) => (
                   <li
-                    className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]"
+                    className="border border-[#e1e7f0] bg-[#f7f9fc] px-4 py-4"
                     key={String(seed.node_id)}
                   >
                     <p className="font-mono text-sm text-slate-900">{String(seed.node_id)}</p>
@@ -174,10 +174,7 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
               />
               <ol className="mt-6 space-y-4">
                 {result.items.map((item) => (
-                  <li
-                    className="rounded-[18px] border border-[#e2dacd] bg-[#f6f1e8] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]"
-                    key={item.node_id}
-                  >
+                  <li className="border border-[#e1e7f0] bg-[#f7f9fc] p-5" key={item.node_id}>
                     <div className="flex flex-wrap gap-2">
                       <TrustBadge kind="origin" value={item.trust.origin} />
                       <TrustBadge kind="verification" value={item.trust.verification} />
@@ -189,10 +186,10 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
                     <p className="mt-3 text-sm leading-6 text-slate-600">
                       Why: {item.why_recalled}
                     </p>
-                    <div className="mt-3 flex flex-wrap gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-[#8b6736]">
+                    <div className="mt-3 flex flex-wrap gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-[#3557ff]">
                       {item.graph_path.node_ids.map((id, index) => (
                         <span
-                          className="rounded-[10px] border border-[#d9c39f] bg-[#efe5d3] px-3 py-1"
+                          className="border border-[#cfd9ee] bg-[#f3f6ff] px-3 py-1"
                           key={`${id}-${index}`}
                         >
                           {index ? `${item.graph_path.edge_types[index - 1]} → ` : ""}
@@ -207,9 +204,9 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
                           key={key}
                         >
                           <span className="capitalize">{key.replaceAll("_", " ")}</span>
-                          <span className="h-2 overflow-hidden rounded-full bg-[#ddd5c9]">
+                          <span className="h-2 overflow-hidden bg-[#dce3ed]">
                             <span
-                              className="block h-full rounded-full bg-[#8b6736]"
+                              className="block h-full bg-[#3557ff]"
                               style={{
                                 width: `${Math.max(0, Math.min(100, Number(value) * 100))}%`,
                               }}
@@ -222,7 +219,7 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
                       ))}
                     </div>
                     {item.contradicting_nodes.length ? (
-                      <p className="mt-4 rounded-2xl border border-rose-200/80 bg-rose-50/85 px-4 py-3 text-sm leading-6 text-rose-700">
+                      <p className="mt-4 border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700">
                         Contradiction retained:{" "}
                         {item.contradicting_nodes
                           .map((node) => node.canonical_statement)
@@ -234,7 +231,7 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
               </ol>
             </Surface>
 
-            <Surface className="overflow-hidden border-[#233043] bg-[#0f1722] text-slate-100 shadow-[0_24px_60px_rgba(15,23,42,0.22)]">
+            <Surface className="overflow-hidden border-[#242b37] bg-[#11151d] text-slate-100">
               <div className="border-b border-white/8 px-6 py-5">
                 <SectionHeader eyebrow="Working-memory contract" title="Model-ready context pack" />
               </div>
