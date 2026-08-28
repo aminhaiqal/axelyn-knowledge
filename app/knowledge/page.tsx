@@ -67,7 +67,7 @@ export default async function KnowledgeLibrary({
         description="Search atomic statements and inspect their trust, provenance, revisions, relationships, and use. Filters are workspace-scoped at the query boundary."
         actions={
           <Link
-            className={cn(buttonVariants({ size: "lg" }), "rounded-full px-4")}
+            className={cn(buttonVariants({ size: "lg" }), "px-4")}
             href={`/add?workspace=${workspace}`}
           >
             Add knowledge
@@ -148,7 +148,7 @@ export default async function KnowledgeLibrary({
           </label>
 
           <div className="flex items-end">
-            <Button className="w-full rounded-full xl:w-auto" size="lg" type="submit">
+            <Button className="w-full xl:w-auto" size="lg" type="submit">
               Apply filters
             </Button>
           </div>
@@ -159,7 +159,7 @@ export default async function KnowledgeLibrary({
         <Surface className="overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="border-slate-200/80 bg-slate-50/70 hover:bg-slate-50/70">
+              <TableRow className="border-[#ddd5c9] bg-[#f5f1e8] hover:bg-[#f5f1e8]">
                 <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
                   Atomic knowledge
                 </TableHead>
@@ -179,14 +179,14 @@ export default async function KnowledgeLibrary({
                 <TableRow className="border-slate-200/70" key={node.id}>
                   <TableCell className="px-6 py-5 align-top whitespace-normal">
                     <Link
-                      className="block text-base font-semibold tracking-tight text-slate-950 transition hover:text-cyan-700"
+                      className="block text-base font-semibold tracking-tight text-slate-950 transition-colors hover:text-[#8b6736]"
                       href={`/knowledge/${node.id}?workspace=${workspace}`}
                     >
                       {node.canonical_statement}
                     </Link>
                     <span className="mt-2 block text-sm text-slate-500">{node.title}</span>
                   </TableCell>
-                  <TableCell className="px-6 py-5 align-top font-mono text-xs uppercase tracking-[0.16em] whitespace-normal text-cyan-700">
+                  <TableCell className="px-6 py-5 align-top font-mono text-xs uppercase tracking-[0.16em] whitespace-normal text-[#8b6736]">
                     {node.type}
                   </TableCell>
                   <TableCell className="px-6 py-5 align-top whitespace-normal">
@@ -216,7 +216,7 @@ export default async function KnowledgeLibrary({
           <Link
             className={cn(
               buttonVariants({ size: "lg", variant: "outline" }),
-              "rounded-full border-slate-200 bg-white/80 px-4",
+              "border-[#d7d0c5] bg-[#fffdf8] px-4",
             )}
             href={`/knowledge?${preserved.toString()}&cursor=${encodeURIComponent(result.next_cursor)}`}
           >
@@ -225,11 +225,11 @@ export default async function KnowledgeLibrary({
         </div>
       ) : null}
 
-      <details className="rounded-[28px] border border-slate-200/80 bg-white/78 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm">
-        <summary className="cursor-pointer px-6 py-5 font-serif text-2xl tracking-tight text-slate-950">
+      <details className="rounded-[20px] border border-[#d8d0c3] bg-white/84 shadow-[0_18px_44px_rgba(15,23,42,0.06)]">
+        <summary className="cursor-pointer px-6 py-5 text-2xl font-semibold tracking-[-0.04em] text-slate-950">
           Add one exact atomic statement instead
         </summary>
-        <div className="border-t border-slate-200/80 px-6 py-6">
+        <div className="border-t border-[#ddd5c9] px-6 py-6">
           <SectionHeader
             eyebrow="Operator-authored proposal"
             title="Create one atomic idea"
@@ -288,7 +288,7 @@ export default async function KnowledgeLibrary({
             <label className="block space-y-2 text-sm font-medium text-slate-800 md:col-span-2">
               <span>Atomic canonical statement</span>
               <Textarea
-                className="min-h-[200px] rounded-[24px]"
+                className="min-h-[200px]"
                 maxLength={4000}
                 name="canonical_statement"
                 required
@@ -296,7 +296,7 @@ export default async function KnowledgeLibrary({
             </label>
 
             <div className="md:col-span-2">
-              <Button className="rounded-full px-5" size="lg" type="submit">
+              <Button className="px-5" size="lg" type="submit">
                 Create proposal
               </Button>
             </div>

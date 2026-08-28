@@ -2,7 +2,10 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export const surfaceClassName =
-  "rounded-[28px] border border-slate-200/80 bg-white/78 shadow-[0_24px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm";
+  "rounded-[20px] border border-[#d8d0c3] bg-white/84 shadow-[0_18px_44px_rgba(15,23,42,0.06)]";
+
+export const insetSurfaceClassName =
+  "rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]";
 
 export function Surface({
   as: Component = "section",
@@ -34,11 +37,11 @@ export function SectionHeader({
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-cyan-700/70">
+        <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8b6736]">
           {eyebrow}
         </p>
         <div className="space-y-1">
-          <h2 className="font-serif text-3xl leading-none tracking-tight text-slate-950">
+          <h2 className="text-[1.8rem] leading-none font-semibold tracking-[-0.04em] text-slate-950">
             {title}
           </h2>
           {description ? (
@@ -62,11 +65,13 @@ export function MetricCard({
 }) {
   return (
     <Surface className="p-5">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
         {label}
       </p>
       <div className="mt-4 flex items-end justify-between gap-4">
-        <p className="font-serif text-4xl leading-none tracking-tight text-slate-950">{value}</p>
+        <p className="text-4xl leading-none font-semibold tracking-[-0.05em] text-slate-950 tabular-nums">
+          {value}
+        </p>
       </div>
       {description ? <p className="mt-3 text-sm leading-6 text-slate-600">{description}</p> : null}
     </Surface>
@@ -83,9 +88,11 @@ export function EmptyState({
   title: string;
 }) {
   return (
-    <Surface className="flex min-h-[220px] flex-col items-center justify-center gap-4 px-6 py-10 text-center">
+    <Surface className="flex min-h-[220px] flex-col items-start justify-center gap-4 px-8 py-10 text-left">
       <div className="space-y-3">
-        <h3 className="font-serif text-3xl leading-none tracking-tight text-slate-950">{title}</h3>
+        <h3 className="text-3xl leading-none font-semibold tracking-[-0.04em] text-slate-950">
+          {title}
+        </h3>
         <p className="max-w-xl text-sm leading-7 text-slate-600">{description}</p>
       </div>
       {action}

@@ -58,14 +58,14 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
         <div className="border-b border-slate-200/80 px-6 py-6 sm:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-cyan-700/70">
+              <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8b6736]">
                 Choose source material
               </p>
-              <h2 className="font-serif text-3xl leading-none tracking-tight text-slate-950 sm:text-4xl">
+              <h2 className="text-3xl leading-none font-semibold tracking-[-0.04em] text-slate-950 sm:text-4xl">
                 What do you want the system to learn from?
               </h2>
             </div>
-            <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-600">
+            <span className="inline-flex items-center rounded-[12px] border border-[#ddd5c9] bg-[#f5f1e8] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-600">
               Source 01
             </span>
           </div>
@@ -77,17 +77,17 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
               <Button
                 aria-pressed={kind === channel.id}
                 className={cn(
-                  "h-auto min-h-28 w-full justify-start rounded-[26px] px-4 py-4 text-left shadow-none",
+                  "h-auto min-h-28 w-full justify-start rounded-[18px] px-4 py-4 text-left shadow-none",
                   kind === channel.id
-                    ? "border-cyan-400/30 bg-cyan-500/10 text-slate-950 hover:bg-cyan-500/12"
-                    : "border-slate-200/80 bg-slate-50/80 text-slate-700 hover:bg-white",
+                    ? "border-[#b78642]/40 bg-[#efe5d3] text-slate-950 hover:bg-[#ece0cb]"
+                    : "border-[#ddd6ca] bg-[#faf7f1] text-slate-700 hover:bg-white",
                 )}
                 key={channel.id}
                 onClick={() => setKind(channel.id)}
                 type="button"
                 variant={kind === channel.id ? "secondary" : "outline"}
               >
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white/90 font-mono text-xs tracking-[0.2em] text-cyan-700">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-[14px] border border-[#ddd6ca] bg-white/92 font-mono text-xs tracking-[0.2em] text-[#8b6736]">
                   {channel.symbol}
                 </span>
                 <span className="space-y-2">
@@ -108,7 +108,7 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
             {state.status === "error" ? (
               <div
                 aria-live="polite"
-                className="rounded-[24px] border border-rose-200/80 bg-rose-50/80 px-4 py-4 text-sm leading-6 text-rose-700"
+                className="rounded-[16px] border border-rose-200/80 bg-rose-50/80 px-4 py-4 text-sm leading-6 text-rose-700"
               >
                 <strong className="font-semibold">Import stopped.</strong> {state.message}
               </div>
@@ -117,7 +117,7 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
             {state.status === "success" ? (
               <div
                 className={cn(
-                  "grid gap-4 rounded-[28px] border px-5 py-5 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center",
+                  "grid gap-4 rounded-[18px] border px-5 py-5 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center",
                   state.extractionStatus === "SUCCEEDED"
                     ? "border-emerald-200/80 bg-emerald-50/80"
                     : "border-amber-200/80 bg-amber-50/85",
@@ -153,7 +153,7 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
                 <Link
                   className={cn(
                     buttonVariants({ size: "lg", variant: "outline" }),
-                    "rounded-full border-white/70 bg-white/90",
+                    "border-white/70 bg-white/90",
                   )}
                   href={
                     state.extractionStatus === "SUCCEEDED"
@@ -181,13 +181,13 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
               />
             </label>
 
-            <div className="rounded-[28px] border border-dashed border-slate-300 bg-slate-50/70 p-5">
+            <div className="rounded-[18px] border border-dashed border-[#d5cebf] bg-[#f5f1e8] p-5">
               {kind === "text" ? (
                 <label className="block space-y-3 text-sm font-medium text-slate-800">
                   <span>Paste your material</span>
                   <Textarea
                     autoFocus
-                    className="min-h-[260px] rounded-[24px] bg-white/90 p-4 leading-7"
+                    className="min-h-[260px] bg-white/95 p-4 leading-7"
                     minLength={1}
                     name="content"
                     placeholder="Paste notes, an article, a transcript, research, or any other source text here…"
@@ -200,11 +200,11 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
               ) : null}
 
               {kind === "file" ? (
-                <label className="flex min-h-[260px] flex-col items-center justify-center gap-3 rounded-[24px] border border-slate-200/80 bg-white/90 p-6 text-center">
-                  <span className="flex size-14 items-center justify-center rounded-2xl border border-cyan-200 bg-cyan-50 font-mono text-lg text-cyan-700">
+                <label className="flex min-h-[260px] flex-col items-center justify-center gap-3 rounded-[16px] border border-[#ddd6ca] bg-white/92 p-6 text-center">
+                  <span className="flex size-14 items-center justify-center rounded-[14px] border border-[#d9c39f] bg-[#f1e6d3] font-mono text-lg text-[#8b6736]">
                     ↑
                   </span>
-                  <strong className="font-serif text-3xl leading-none tracking-tight text-slate-950">
+                  <strong className="text-3xl leading-none font-semibold tracking-[-0.04em] text-slate-950">
                     Choose a document
                   </strong>
                   <span className="max-w-md text-sm leading-6 text-slate-600">
@@ -215,7 +215,7 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
                   </span>
                   <input
                     accept={ACCEPTED_FILE_TYPES}
-                    className="mt-2 block w-full max-w-md rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-full file:border-0 file:bg-slate-950 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
+                    className="mt-2 block w-full max-w-md rounded-[14px] border border-[#ddd6ca] bg-white px-3 py-2 text-sm file:mr-3 file:rounded-[10px] file:border-0 file:bg-slate-950 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
                     name="file"
                     required
                     type="file"
@@ -226,9 +226,9 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
               {kind === "website" ? (
                 <label className="block space-y-3 text-sm font-medium text-slate-800">
                   <span>Public website URL</span>
-                  <div className="rounded-[24px] border border-slate-200 bg-white/90 p-3">
-                    <div className="flex items-center gap-3 rounded-[18px] border border-slate-200 bg-white px-3">
-                      <span aria-hidden="true" className="font-mono text-xs text-cyan-700">
+                  <div className="rounded-[16px] border border-[#ddd6ca] bg-white/92 p-3">
+                    <div className="flex items-center gap-3 rounded-[12px] border border-[#ddd6ca] bg-white px-3">
+                      <span aria-hidden="true" className="font-mono text-xs text-[#8b6736]">
                         ↗
                       </span>
                       <Input
@@ -254,7 +254,7 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
                 This creates review proposals. It does not publish knowledge or mark facts as
                 verified.
               </p>
-              <Button className="rounded-full px-5" disabled={pending} size="lg" type="submit">
+              <Button className="px-5" disabled={pending} size="lg" type="submit">
                 {pending ? "Reading source…" : selected.actionLabel}
               </Button>
             </div>
@@ -262,15 +262,15 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
         </div>
       </Surface>
 
-      <Surface className="border-white/8 bg-[#0f1b2f] p-6 text-slate-100 shadow-[0_28px_80px_rgba(15,23,42,0.24)]">
+      <Surface className="border-[#233043] bg-[#0f1722] p-6 text-slate-100 shadow-[0_24px_60px_rgba(15,23,42,0.22)]">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-cyan-200/70">
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#d8b887]/80">
               Import settings
             </p>
             <h2 className="font-serif text-3xl leading-none tracking-tight">Receipt</h2>
           </div>
-          <span className="rounded-full border border-white/12 bg-white/6 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-300">
+          <span className="rounded-[12px] border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
             Intake
           </span>
         </div>
@@ -301,7 +301,7 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
             <dd className="min-w-[150px]">
               <NativeSelect
                 aria-label="Sensitivity"
-                className="border-white/14 bg-white/8 text-xs text-slate-100 focus:border-cyan-300/60 focus:ring-cyan-300/12"
+                className="border-white/14 bg-white/8 text-xs text-slate-100 focus:border-[#d8b887]/60 focus:ring-[#d8b887]/12"
                 onChange={(event) => setSensitivity(event.target.value)}
                 value={sensitivity}
               >
@@ -327,7 +327,7 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
                 className={cn(
                   "relative z-10 flex size-6 shrink-0 items-center justify-center rounded-full border font-mono text-[10px]",
                   index === 0
-                    ? "border-cyan-200/40 bg-cyan-200 text-slate-950"
+                    ? "border-[#d8b887]/40 bg-[#d8b887] text-slate-950"
                     : "border-white/14 bg-[#142033] text-slate-300",
                 )}
               >

@@ -77,7 +77,7 @@ export default async function Inbox({
                     </div>
 
                     {duplicates.length || contradictions.length ? (
-                      <p className="rounded-2xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-sm leading-6 text-amber-700">
+                      <p className="rounded-[14px] border border-amber-200/90 bg-amber-50/75 px-4 py-3 text-sm leading-6 text-amber-800">
                         {duplicates.length ? `${duplicates.length} possible duplicate(s). ` : ""}
                         {contradictions.length
                           ? `${contradictions.length} potential contradiction(s).`
@@ -88,17 +88,17 @@ export default async function Inbox({
                     <div className="space-y-3">
                       {provenance.map((reference, index) => (
                         <details
-                          className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-4"
+                          className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]"
                           key={`${String(reference.source_id)}-${index}`}
                         >
                           <summary className="cursor-pointer text-sm font-semibold text-slate-900">
                             {String(reference.source_system)}:{String(reference.external_id)}:v
                             {String(reference.source_version)}
                           </summary>
-                          <p className="mt-3 border-l-2 border-cyan-200 pl-4 text-sm leading-6 text-slate-700">
+                          <p className="mt-3 border-l-2 border-[#ccb287] pl-4 text-sm leading-6 text-slate-700">
                             “{String(reference.excerpt)}”
                           </p>
-                          <div className="mt-3 max-h-48 overflow-auto border-t border-slate-200/80 pt-3 text-sm leading-6 text-slate-600 whitespace-pre-wrap">
+                          <div className="mt-3 max-h-48 overflow-auto border-t border-[#ddd5c9] pt-3 text-sm leading-6 text-slate-600 whitespace-pre-wrap">
                             {String(reference.content)}
                           </div>
                         </details>
@@ -108,12 +108,12 @@ export default async function Inbox({
 
                   <aside
                     aria-label={`Review ${node.title}`}
-                    className="space-y-4 border-t border-slate-200/80 pt-6 xl:border-t-0 xl:border-l xl:pl-6 xl:pt-0"
+                    className="space-y-4 border-t border-[#ddd5c9] pt-6 xl:border-t-0 xl:border-l xl:border-[#ddd5c9] xl:pl-6 xl:pt-0"
                   >
                     <Link
                       className={cn(
                         buttonVariants({ size: "lg", variant: "outline" }),
-                        "w-full rounded-full border-slate-200 bg-white/85",
+                        "w-full border-[#d7d0c5] bg-[#fffdf8]",
                       )}
                       href={`/knowledge/${node.id}?workspace=${workspace}`}
                     >
@@ -128,7 +128,7 @@ export default async function Inbox({
                         name="reason"
                         value="Approved after reviewing source provenance"
                       />
-                      <Button className="w-full rounded-full" size="lg" type="submit">
+                      <Button className="w-full" size="lg" type="submit">
                         Approve knowledge
                       </Button>
                     </form>
@@ -145,12 +145,7 @@ export default async function Inbox({
                           required
                         />
                       </label>
-                      <Button
-                        className="w-full rounded-full"
-                        size="lg"
-                        type="submit"
-                        variant="destructive"
-                      >
+                      <Button className="w-full" size="lg" type="submit" variant="destructive">
                         Reject proposal
                       </Button>
                     </form>
@@ -163,7 +158,7 @@ export default async function Inbox({
           <EmptyState
             action={
               <Link
-                className={cn(buttonVariants({ size: "lg" }), "rounded-full px-4")}
+                className={cn(buttonVariants({ size: "lg" }), "px-4")}
                 href={`/add?workspace=${workspace}`}
               >
                 Add source material
@@ -185,7 +180,7 @@ export default async function Inbox({
           <Surface className="overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="border-slate-200/80 bg-slate-50/70 hover:bg-slate-50/70">
+                <TableRow className="border-[#ddd5c9] bg-[#f5f1e8] hover:bg-[#f5f1e8]">
                   <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
                     From
                   </TableHead>
@@ -212,7 +207,7 @@ export default async function Inbox({
                       <TableCell className="px-6 py-5 align-top whitespace-normal">
                         {String(edge.source_title)}
                       </TableCell>
-                      <TableCell className="px-6 py-5 align-top font-mono text-xs uppercase tracking-[0.16em] whitespace-normal text-cyan-700">
+                      <TableCell className="px-6 py-5 align-top font-mono text-xs uppercase tracking-[0.16em] whitespace-normal text-[#8b6736]">
                         {String(edge.type)}
                       </TableCell>
                       <TableCell className="px-6 py-5 align-top whitespace-normal">
@@ -222,17 +217,17 @@ export default async function Inbox({
                         <div className="space-y-3">
                           {sources.map((source, index) => (
                             <details
-                              className="rounded-[20px] border border-slate-200/80 bg-slate-50/70 p-4"
+                              className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]"
                               key={`${String(source.source_id)}-${index}`}
                             >
                               <summary className="cursor-pointer text-sm font-semibold text-slate-900">
                                 {String(source.source_system)}:{String(source.external_id)}:v
                                 {String(source.source_version)}
                               </summary>
-                              <p className="mt-3 border-l-2 border-cyan-200 pl-4 text-sm leading-6 text-slate-700">
+                              <p className="mt-3 border-l-2 border-[#ccb287] pl-4 text-sm leading-6 text-slate-700">
                                 “{String(source.excerpt)}”
                               </p>
-                              <div className="mt-3 max-h-40 overflow-auto border-t border-slate-200/80 pt-3 text-sm leading-6 text-slate-600 whitespace-pre-wrap">
+                              <div className="mt-3 max-h-40 overflow-auto border-t border-[#ddd5c9] pt-3 text-sm leading-6 text-slate-600 whitespace-pre-wrap">
                                 {String(source.content)}
                               </div>
                             </details>
@@ -250,7 +245,7 @@ export default async function Inbox({
                               name="reason"
                               value="Relationship provenance reviewed"
                             />
-                            <Button className="w-full rounded-full" size="sm" type="submit">
+                            <Button className="w-full" size="sm" type="submit">
                               Approve
                             </Button>
                           </form>
@@ -264,7 +259,7 @@ export default async function Inbox({
                               value="Relationship rejected during review"
                             />
                             <Button
-                              className="w-full rounded-full"
+                              className="w-full"
                               size="sm"
                               type="submit"
                               variant="destructive"

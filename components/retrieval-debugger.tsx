@@ -28,7 +28,7 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
             <label className="block space-y-2 text-sm font-medium text-slate-800">
               <span>Query</span>
               <Textarea
-                className="min-h-[180px] rounded-[24px] bg-white/90 p-4 leading-7"
+                className="min-h-[180px] bg-white/90 p-4 leading-7"
                 defaultValue="How should we explain explainability in regulated systems?"
                 name="query"
                 required
@@ -84,11 +84,11 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
               <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
                 {VERIFICATION_LEVELS.map((value) => (
                   <label
-                    className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white/80 px-3 py-3 text-sm font-medium text-slate-700"
+                    className="flex items-center gap-3 rounded-[14px] border border-[#ddd6ca] bg-white/82 px-3 py-3 text-sm font-medium text-slate-700"
                     key={value}
                   >
                     <input
-                      className="size-4 accent-cyan-700"
+                      className="size-4 accent-[#8b6736]"
                       defaultChecked
                       name="allowed_verification_levels"
                       type="checkbox"
@@ -100,18 +100,18 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
               </div>
             </div>
 
-            <details className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 p-4">
+            <details className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
               <summary className="cursor-pointer text-sm font-semibold text-slate-800">
                 Limit node types
               </summary>
               <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
                 {NODE_TYPES.map((value) => (
                   <label
-                    className="flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-white/80 px-3 py-3 text-sm font-medium text-slate-700"
+                    className="flex items-center gap-3 rounded-[14px] border border-[#ddd6ca] bg-white/82 px-3 py-3 text-sm font-medium text-slate-700"
                     key={value}
                   >
                     <input
-                      className="size-4 accent-cyan-700"
+                      className="size-4 accent-[#8b6736]"
                       name="desired_node_types"
                       type="checkbox"
                       value={value}
@@ -122,7 +122,7 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
               </div>
             </details>
 
-            <Button className="w-full rounded-full" disabled={pending} size="lg" type="submit">
+            <Button className="w-full" disabled={pending} size="lg" type="submit">
               {pending ? "Activating…" : "Run retrieval"}
             </Button>
           </form>
@@ -131,7 +131,7 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
 
       <section aria-live="polite" className="space-y-6">
         {state.error ? (
-          <div className="rounded-[24px] border border-rose-200/80 bg-rose-50/80 px-4 py-4 text-sm leading-6 text-rose-700">
+          <div className="rounded-[16px] border border-rose-200/80 bg-rose-50/80 px-4 py-4 text-sm leading-6 text-rose-700">
             {state.error}
           </div>
         ) : null}
@@ -153,7 +153,7 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
               <ul className="mt-6 space-y-4">
                 {result.seed_results.map((seed) => (
                   <li
-                    className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 px-4 py-4"
+                    className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]"
                     key={String(seed.node_id)}
                   >
                     <p className="font-mono text-sm text-slate-900">{String(seed.node_id)}</p>
@@ -175,7 +175,7 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
               <ol className="mt-6 space-y-4">
                 {result.items.map((item) => (
                   <li
-                    className="rounded-[26px] border border-slate-200/80 bg-slate-50/70 p-5"
+                    className="rounded-[18px] border border-[#e2dacd] bg-[#f6f1e8] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]"
                     key={item.node_id}
                   >
                     <div className="flex flex-wrap gap-2">
@@ -189,10 +189,10 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
                     <p className="mt-3 text-sm leading-6 text-slate-600">
                       Why: {item.why_recalled}
                     </p>
-                    <div className="mt-3 flex flex-wrap gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-cyan-700">
+                    <div className="mt-3 flex flex-wrap gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-[#8b6736]">
                       {item.graph_path.node_ids.map((id, index) => (
                         <span
-                          className="rounded-full border border-cyan-200/80 bg-cyan-50 px-3 py-1"
+                          className="rounded-[10px] border border-[#d9c39f] bg-[#efe5d3] px-3 py-1"
                           key={`${id}-${index}`}
                         >
                           {index ? `${item.graph_path.edge_types[index - 1]} → ` : ""}
@@ -207,9 +207,9 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
                           key={key}
                         >
                           <span className="capitalize">{key.replaceAll("_", " ")}</span>
-                          <span className="h-2 overflow-hidden rounded-full bg-slate-200">
+                          <span className="h-2 overflow-hidden rounded-full bg-[#ddd5c9]">
                             <span
-                              className="block h-full rounded-full bg-cyan-700"
+                              className="block h-full rounded-full bg-[#8b6736]"
                               style={{
                                 width: `${Math.max(0, Math.min(100, Number(value) * 100))}%`,
                               }}
@@ -234,7 +234,7 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
               </ol>
             </Surface>
 
-            <Surface className="overflow-hidden border-white/8 bg-[#0f1b2f] text-slate-100 shadow-[0_28px_80px_rgba(15,23,42,0.24)]">
+            <Surface className="overflow-hidden border-[#233043] bg-[#0f1722] text-slate-100 shadow-[0_24px_60px_rgba(15,23,42,0.22)]">
               <div className="border-b border-white/8 px-6 py-5">
                 <SectionHeader eyebrow="Working-memory contract" title="Model-ready context pack" />
               </div>
