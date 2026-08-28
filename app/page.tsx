@@ -39,10 +39,7 @@ export default async function Dashboard({
         actions={
           <>
             <Link
-              className={cn(
-                buttonVariants({ size: "lg", variant: "outline" }),
-                "border-[#d7d0c5] bg-[#fffdf8] px-4",
-              )}
+              className={cn(buttonVariants({ size: "lg", variant: "outline" }), "px-4")}
               href={`/inbox?workspace=${workspace}`}
             >
               Review inbox
@@ -73,7 +70,7 @@ export default async function Dashboard({
           <SectionHeader
             action={
               <Link
-                className="text-sm font-medium text-slate-600 transition-colors hover:text-[#8b6736]"
+                className="text-sm font-medium text-slate-600 transition-colors hover:text-[#3557ff]"
                 href={`/inbox?workspace=${workspace}`}
               >
                 Open full inbox
@@ -87,7 +84,7 @@ export default async function Dashboard({
             <Surface className="overflow-hidden">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-[#ddd5c9] bg-[#f5f1e8] hover:bg-[#f5f1e8]">
+                  <TableRow className="border-[#dce3ed] bg-[#f7f9fc] hover:bg-[#f7f9fc]">
                     <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
                       Knowledge
                     </TableHead>
@@ -104,7 +101,7 @@ export default async function Dashboard({
                     <TableRow key={String(node.id)} className="border-slate-200/70">
                       <TableCell className="px-6 py-5 align-top whitespace-normal">
                         <Link
-                          className="block text-base font-semibold tracking-tight text-slate-950 transition-colors hover:text-[#8b6736]"
+                          className="block text-base font-semibold tracking-tight text-slate-950 transition-colors hover:text-[#3557ff]"
                           href={`/knowledge/${node.id}?workspace=${workspace}`}
                         >
                           {String(node.title)}
@@ -139,7 +136,7 @@ export default async function Dashboard({
               <ul className="mt-6 space-y-4">
                 {dashboard.recent_sources.map((source) => (
                   <li
-                    className="border-t border-[#dfd7ca] pt-4 first:border-t-0 first:pt-0"
+                    className="border-t border-[#e1e7f0] pt-4 first:border-t-0 first:pt-0"
                     key={String(source.id)}
                   >
                     <p className="font-semibold tracking-tight text-slate-950">
@@ -164,10 +161,7 @@ export default async function Dashboard({
             {dashboard.extraction_failures.length ? (
               <ul className="mt-6 space-y-4">
                 {dashboard.extraction_failures.map((failure) => (
-                  <li
-                    className="rounded-[16px] border border-rose-200/80 bg-rose-50/70 p-4"
-                    key={String(failure.id)}
-                  >
+                  <li className="border border-rose-200 bg-rose-50/80 p-4" key={String(failure.id)}>
                     <p className="font-semibold tracking-tight text-slate-950">
                       {String(failure.title ?? failure.external_id)}
                     </p>
@@ -180,7 +174,7 @@ export default async function Dashboard({
                       <button
                         className={cn(
                           buttonVariants({ size: "sm", variant: "outline" }),
-                          "border-rose-200 bg-white/90",
+                          "border-rose-200 bg-white",
                         )}
                         type="submit"
                       >

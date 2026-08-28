@@ -36,10 +36,7 @@ export default async function NodeDetail({
         description="One atomic memory with its trust state, immutable provenance, revision trail, graph neighborhood, and usage history."
         actions={
           <Link
-            className={cn(
-              buttonVariants({ size: "lg", variant: "outline" }),
-              "border-[#d7d0c5] bg-[#fffdf8] px-4",
-            )}
+            className={cn(buttonVariants({ size: "lg", variant: "outline" }), "px-4")}
             href={`/memory-map?workspace=${workspace}&node_id=${node.id}`}
           >
             Open neighborhood
@@ -57,7 +54,7 @@ export default async function NodeDetail({
               <TrustBadge kind="sensitivity" value={node.sensitivity} />
             </div>
 
-            <blockquote className="border-l-[3px] border-[#ccb287] pl-6 font-serif text-3xl leading-tight tracking-tight text-slate-950 sm:text-4xl">
+            <blockquote className="border-l-[3px] border-[#3557ff] pl-6 font-serif text-3xl leading-tight tracking-tight text-slate-950 sm:text-4xl">
               {node.canonical_statement}
             </blockquote>
 
@@ -68,10 +65,7 @@ export default async function NodeDetail({
                 ["Salience", node.salience.toFixed(2)],
                 ["Usefulness", node.usefulness_score.toFixed(2)],
               ].map(([label, value]) => (
-                <div
-                  className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]"
-                  key={label}
-                >
+                <div className="border border-[#e1e7f0] bg-[#f7f9fc] p-4" key={label}>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
                     {label}
                   </p>
@@ -85,10 +79,7 @@ export default async function NodeDetail({
             </p>
 
             <div className="space-y-3">
-              <details
-                className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]"
-                open
-              >
+              <details className="border border-[#e1e7f0] bg-[#f7f9fc] p-4" open>
                 <summary className="cursor-pointer text-sm font-semibold text-slate-900">
                   Provenance ({node.provenance.length})
                 </summary>
@@ -96,14 +87,14 @@ export default async function NodeDetail({
                   <div className="mt-4 space-y-3">
                     {node.provenance.map((reference) => (
                       <div
-                        className="rounded-[14px] border border-[#ddd6ca] bg-white/82 p-4"
+                        className="border border-[#dce3ed] bg-white p-4"
                         key={`${String(reference.source_id)}-${String(reference.excerpt)}`}
                       >
                         <strong className="block text-sm text-slate-900">
                           {String(reference.source_system)}:{String(reference.external_id)}:v
                           {String(reference.source_version)}
                         </strong>
-                        <p className="mt-3 border-l-2 border-[#ccb287] pl-4 text-sm leading-6 text-slate-700">
+                        <p className="mt-3 border-l-2 border-[#3557ff] pl-4 text-sm leading-6 text-slate-700">
                           “{String(reference.excerpt)}”
                         </p>
                       </div>
@@ -116,16 +107,13 @@ export default async function NodeDetail({
                 )}
               </details>
 
-              <details className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
+              <details className="border border-[#e1e7f0] bg-[#f7f9fc] p-4">
                 <summary className="cursor-pointer text-sm font-semibold text-slate-900">
                   Version history ({node.versions.length})
                 </summary>
                 <ol className="mt-4 space-y-3">
                   {node.versions.map((version) => (
-                    <li
-                      className="rounded-[14px] border border-[#ddd6ca] bg-white/82 p-4"
-                      key={String(version.id)}
-                    >
+                    <li className="border border-[#dce3ed] bg-white p-4" key={String(version.id)}>
                       <strong className="block text-sm text-slate-900">
                         v{String(version.version)} · {String(version.change_reason)}
                       </strong>
@@ -141,17 +129,14 @@ export default async function NodeDetail({
                 </ol>
               </details>
 
-              <details className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
+              <details className="border border-[#e1e7f0] bg-[#f7f9fc] p-4">
                 <summary className="cursor-pointer text-sm font-semibold text-slate-900">
                   Relationships ({node.relationships.length})
                 </summary>
                 <ul className="mt-4 space-y-3">
                   {node.relationships.map((edge) => (
-                    <li
-                      className="rounded-[14px] border border-[#ddd6ca] bg-white/82 p-4"
-                      key={String(edge.id)}
-                    >
-                      <span className="font-mono text-xs uppercase tracking-[0.16em] text-[#8b6736]">
+                    <li className="border border-[#dce3ed] bg-white p-4" key={String(edge.id)}>
+                      <span className="font-mono text-xs uppercase tracking-[0.16em] text-[#3557ff]">
                         {String(edge.direction)} · {String(edge.type)}
                       </span>
                       <div className="mt-2 text-sm leading-6 text-slate-700">
@@ -166,14 +151,14 @@ export default async function NodeDetail({
                 </ul>
               </details>
 
-              <details className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
+              <details className="border border-[#e1e7f0] bg-[#f7f9fc] p-4">
                 <summary className="cursor-pointer text-sm font-semibold text-slate-900">
                   Contradictions ({node.contradictions.length})
                 </summary>
                 <ul className="mt-4 space-y-3">
                   {node.contradictions.map((edge) => (
                     <li
-                      className="rounded-[20px] border border-rose-200/80 bg-rose-50/80 p-4 text-sm leading-6 text-rose-700"
+                      className="border border-rose-200 bg-rose-50 p-4 text-sm leading-6 text-rose-700"
                       key={String(edge.id)}
                     >
                       {String(edge.source_title)} contradicts {String(edge.target_title)}
@@ -182,16 +167,13 @@ export default async function NodeDetail({
                 </ul>
               </details>
 
-              <details className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
+              <details className="border border-[#e1e7f0] bg-[#f7f9fc] p-4">
                 <summary className="cursor-pointer text-sm font-semibold text-slate-900">
                   Usage history ({node.usage.length})
                 </summary>
                 <ul className="mt-4 space-y-3">
                   {node.usage.slice(0, 30).map((usage) => (
-                    <li
-                      className="rounded-[14px] border border-[#ddd6ca] bg-white/82 p-4"
-                      key={String(usage.id)}
-                    >
+                    <li className="border border-[#dce3ed] bg-white p-4" key={String(usage.id)}>
                       <strong className="block text-sm text-slate-900">
                         {String(usage.outcome)}
                       </strong>

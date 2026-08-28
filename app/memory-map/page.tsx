@@ -65,7 +65,7 @@ export default async function MemoryMap({
       ) : (
         <>
           <Surface className="overflow-hidden p-4 sm:p-6">
-            <div className="overflow-hidden rounded-[18px] border border-[#ddd6ca] bg-[#f7f2ea] [background-image:radial-gradient(#d3cbc0_0.8px,transparent_0.8px)] [background-size:16px_16px]">
+            <div className="overflow-hidden border border-[#dce3ed] bg-[#f8fafc] [background-image:radial-gradient(#d5dce7_0.8px,transparent_0.8px)] [background-size:16px_16px]">
               <svg
                 aria-labelledby="map-title map-description"
                 className="block min-h-[540px] w-full"
@@ -88,7 +88,7 @@ export default async function MemoryMap({
                     refY="5"
                     viewBox="0 0 10 10"
                   >
-                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b6736" />
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#3557ff" />
                   </marker>
                 </defs>
                 {graph.edges.map((edge) => {
@@ -100,7 +100,7 @@ export default async function MemoryMap({
                     <g key={String(edge.id)}>
                       <line
                         markerEnd="url(#arrow)"
-                        stroke="#9f978a"
+                        stroke="#95a2b8"
                         strokeWidth="1.5"
                         x1={from.x}
                         x2={to.x}
@@ -108,7 +108,7 @@ export default async function MemoryMap({
                         y2={to.y}
                       />
                       <text
-                        fill="#8b6736"
+                        fill="#3557ff"
                         fontFamily="monospace"
                         fontSize="8"
                         textAnchor="middle"
@@ -136,7 +136,7 @@ export default async function MemoryMap({
                           cy={position.y}
                           fill={node.id === rootId ? "#0f1b2f" : "rgba(255,255,255,0.96)"}
                           r={node.id === rootId ? 52 : 40}
-                          stroke={node.id === rootId ? "#0f1b2f" : "#8b6736"}
+                          stroke={node.id === rootId ? "#11151d" : "#3557ff"}
                           strokeWidth="2"
                         />
                         <text
@@ -163,10 +163,7 @@ export default async function MemoryMap({
               action={
                 depth < 3 ? (
                   <Link
-                    className={cn(
-                      buttonVariants({ size: "lg", variant: "outline" }),
-                      "border-[#d7d0c5] bg-[#fffdf8] px-4",
-                    )}
+                    className={cn(buttonVariants({ size: "lg", variant: "outline" }), "px-4")}
                     href={`/memory-map?workspace=${workspace}&node_id=${rootId}&depth=${depth + 1}`}
                   >
                     Expand to {depth + 1} hops
@@ -180,7 +177,7 @@ export default async function MemoryMap({
             <Surface className="overflow-hidden">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-[#ddd5c9] bg-[#f5f1e8] hover:bg-[#f5f1e8]">
+                  <TableRow className="border-[#dce3ed] bg-[#f7f9fc] hover:bg-[#f7f9fc]">
                     <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
                       Source
                     </TableHead>
@@ -206,7 +203,7 @@ export default async function MemoryMap({
                         <TableCell className="px-6 py-5 align-top whitespace-normal">
                           {source?.title ?? String(edge.source_node_id)}
                         </TableCell>
-                        <TableCell className="px-6 py-5 align-top font-mono text-xs uppercase tracking-[0.16em] whitespace-normal text-[#8b6736]">
+                        <TableCell className="px-6 py-5 align-top font-mono text-xs uppercase tracking-[0.16em] whitespace-normal text-[#3557ff]">
                           → {String(edge.type)}
                         </TableCell>
                         <TableCell className="px-6 py-5 align-top whitespace-normal">

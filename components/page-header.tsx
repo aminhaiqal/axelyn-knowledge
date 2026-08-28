@@ -12,24 +12,20 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="space-y-5">
-      <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-        <div className="max-w-4xl space-y-3">
-          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.24em] text-[#8b6736]">
-            {eyebrow}
-          </p>
-          <div className="space-y-3">
-            <h1 className="max-w-4xl text-4xl leading-none font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl xl:text-[3.65rem]">
-              {title}
-            </h1>
-            <p className="max-w-3xl text-sm leading-7 text-slate-600 sm:text-[0.98rem]">
-              {description}
-            </p>
-          </div>
-        </div>
+    <header className="grid gap-6 border-b border-[#dce3ed] pb-8 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-end">
+      <div className="max-w-5xl space-y-4">
+        <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.24em] text-[#3557ff]">
+          {eyebrow}
+        </p>
+        <h1 className="max-w-[18ch] font-serif text-[clamp(2.9rem,6.6vw,5.35rem)] leading-[0.9] tracking-[-0.06em] text-slate-950">
+          {title}
+        </h1>
+      </div>
+
+      <div className="space-y-5 xl:justify-self-end xl:max-w-[360px]">
+        <p className="text-sm leading-7 text-slate-500 sm:text-[0.98rem]">{description}</p>
         {actions ? <div className="flex flex-wrap gap-3">{actions}</div> : null}
       </div>
-      <div className="h-px bg-gradient-to-r from-[#b78642]/70 via-[#d8d0c3] to-transparent" />
     </header>
   );
 }

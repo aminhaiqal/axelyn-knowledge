@@ -77,7 +77,7 @@ export default async function Inbox({
                     </div>
 
                     {duplicates.length || contradictions.length ? (
-                      <p className="rounded-[14px] border border-amber-200/90 bg-amber-50/75 px-4 py-3 text-sm leading-6 text-amber-800">
+                      <p className="border border-[#cfd9ee] bg-[#f3f6ff] px-4 py-3 text-sm leading-6 text-[#3557ff]">
                         {duplicates.length ? `${duplicates.length} possible duplicate(s). ` : ""}
                         {contradictions.length
                           ? `${contradictions.length} potential contradiction(s).`
@@ -88,17 +88,17 @@ export default async function Inbox({
                     <div className="space-y-3">
                       {provenance.map((reference, index) => (
                         <details
-                          className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]"
+                          className="border border-[#e1e7f0] bg-[#f7f9fc] p-4"
                           key={`${String(reference.source_id)}-${index}`}
                         >
                           <summary className="cursor-pointer text-sm font-semibold text-slate-900">
                             {String(reference.source_system)}:{String(reference.external_id)}:v
                             {String(reference.source_version)}
                           </summary>
-                          <p className="mt-3 border-l-2 border-[#ccb287] pl-4 text-sm leading-6 text-slate-700">
+                          <p className="mt-3 border-l-2 border-[#3557ff] pl-4 text-sm leading-6 text-slate-700">
                             “{String(reference.excerpt)}”
                           </p>
-                          <div className="mt-3 max-h-48 overflow-auto border-t border-[#ddd5c9] pt-3 text-sm leading-6 text-slate-600 whitespace-pre-wrap">
+                          <div className="mt-3 max-h-48 overflow-auto border-t border-[#dce3ed] pt-3 text-sm leading-6 text-slate-600 whitespace-pre-wrap">
                             {String(reference.content)}
                           </div>
                         </details>
@@ -108,13 +108,10 @@ export default async function Inbox({
 
                   <aside
                     aria-label={`Review ${node.title}`}
-                    className="space-y-4 border-t border-[#ddd5c9] pt-6 xl:border-t-0 xl:border-l xl:border-[#ddd5c9] xl:pl-6 xl:pt-0"
+                    className="space-y-4 border-t border-[#dce3ed] pt-6 xl:border-t-0 xl:border-l xl:border-[#dce3ed] xl:pl-6 xl:pt-0"
                   >
                     <Link
-                      className={cn(
-                        buttonVariants({ size: "lg", variant: "outline" }),
-                        "w-full border-[#d7d0c5] bg-[#fffdf8]",
-                      )}
+                      className={cn(buttonVariants({ size: "lg", variant: "outline" }), "w-full")}
                       href={`/knowledge/${node.id}?workspace=${workspace}`}
                     >
                       Inspect and edit
@@ -180,7 +177,7 @@ export default async function Inbox({
           <Surface className="overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="border-[#ddd5c9] bg-[#f5f1e8] hover:bg-[#f5f1e8]">
+                <TableRow className="border-[#dce3ed] bg-[#f7f9fc] hover:bg-[#f7f9fc]">
                   <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
                     From
                   </TableHead>
@@ -207,7 +204,7 @@ export default async function Inbox({
                       <TableCell className="px-6 py-5 align-top whitespace-normal">
                         {String(edge.source_title)}
                       </TableCell>
-                      <TableCell className="px-6 py-5 align-top font-mono text-xs uppercase tracking-[0.16em] whitespace-normal text-[#8b6736]">
+                      <TableCell className="px-6 py-5 align-top font-mono text-xs uppercase tracking-[0.16em] whitespace-normal text-[#3557ff]">
                         {String(edge.type)}
                       </TableCell>
                       <TableCell className="px-6 py-5 align-top whitespace-normal">
@@ -217,17 +214,17 @@ export default async function Inbox({
                         <div className="space-y-3">
                           {sources.map((source, index) => (
                             <details
-                              className="rounded-[16px] border border-[#e2dacd] bg-[#f6f1e8] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]"
+                              className="border border-[#e1e7f0] bg-[#f7f9fc] p-4"
                               key={`${String(source.source_id)}-${index}`}
                             >
                               <summary className="cursor-pointer text-sm font-semibold text-slate-900">
                                 {String(source.source_system)}:{String(source.external_id)}:v
                                 {String(source.source_version)}
                               </summary>
-                              <p className="mt-3 border-l-2 border-[#ccb287] pl-4 text-sm leading-6 text-slate-700">
+                              <p className="mt-3 border-l-2 border-[#3557ff] pl-4 text-sm leading-6 text-slate-700">
                                 “{String(source.excerpt)}”
                               </p>
-                              <div className="mt-3 max-h-40 overflow-auto border-t border-[#ddd5c9] pt-3 text-sm leading-6 text-slate-600 whitespace-pre-wrap">
+                              <div className="mt-3 max-h-40 overflow-auto border-t border-[#dce3ed] pt-3 text-sm leading-6 text-slate-600 whitespace-pre-wrap">
                                 {String(source.content)}
                               </div>
                             </details>
