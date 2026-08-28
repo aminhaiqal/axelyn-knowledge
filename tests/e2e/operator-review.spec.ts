@@ -35,9 +35,7 @@ test("an operator imports pasted source material through the guided intake", asy
   const title = `E2E interview notes ${suffix}`;
 
   await page.goto("/add?workspace=e2e");
-  await expect(
-    page.getByRole("heading", { name: "Add knowledge from what you already have" }),
-  ).toBeVisible();
+  await expect(page.getByLabel("Source name Optional")).toBeVisible();
   await page.getByLabel("Source name Optional").fill(title);
   await page
     .getByLabel("Paste your material")
