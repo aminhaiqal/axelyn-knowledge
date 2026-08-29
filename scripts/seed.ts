@@ -141,7 +141,8 @@ async function main() {
 
   const node = {
     signal: await getOrCreateNode("signal", source.signal, source.signal.content, {
-      type: "SIGNAL",
+      operation: "INSERT",
+      type: "OBSERVATION",
       title: "Reviewers need usable explanations",
       canonical_statement:
         "Regulated technology teams want explanations they can show to reviewers, not only accuracy scores.",
@@ -158,6 +159,7 @@ async function main() {
       source.observation,
       source.observation.content,
       {
+        operation: "INSERT",
         type: "OBSERVATION",
         title: "Traceability accelerated design reviews",
         canonical_statement:
@@ -172,7 +174,8 @@ async function main() {
       },
     ),
     insight: await getOrCreateNode("insight", source.insight, source.insight.content, {
-      type: "CLAIM",
+      operation: "EXTEND",
+      type: "INSIGHT",
       title: "Explainability as trust infrastructure",
       canonical_statement:
         "Explainability may function as organizational trust infrastructure rather than merely as a model feature.",
@@ -185,6 +188,7 @@ async function main() {
       salience: 0.7,
     }),
     evidence: await getOrCreateNode("evidence", source.evidence, source.evidence.content, {
+      operation: "CHALLENGE",
       type: "EVIDENCE",
       title: "Traceable evidence reduced reproduction time",
       canonical_statement:
@@ -202,7 +206,8 @@ async function main() {
       source.counterargument,
       source.counterargument.content,
       {
-        type: "COUNTERARGUMENT",
+        operation: "EXTEND",
+        type: "ARGUMENT",
         title: "Explanations can overwhelm reviewers",
         canonical_statement:
           "More explanation can overwhelm decision-makers when it is not tailored to the decision and audience.",
@@ -220,7 +225,8 @@ async function main() {
       source.approved,
       "For regulated teams, it is a usable chain from recommendation to evidence to accountable decision.",
       {
-        type: "POSITION",
+        operation: "INSERT",
+        type: "PRINCIPLE",
         title: "Explainability is an accountable decision chain",
         canonical_statement:
           "For regulated teams, explainability should form a usable chain from recommendation to evidence to accountable decision.",
@@ -238,7 +244,8 @@ async function main() {
       source.approved,
       "Show the path, name the uncertainty, and give the reviewer somewhere to intervene.",
       {
-        type: "VOICE_PATTERN",
+        operation: "INSERT",
+        type: "PROCEDURE",
         title: "Path, uncertainty, intervention",
         canonical_statement:
           "Explain a system by showing the path, naming uncertainty, and identifying where a reviewer can intervene.",
@@ -252,7 +259,8 @@ async function main() {
       },
     ),
     correction: await getOrCreateNode("correction", source.correction, source.correction.content, {
-      type: "CONSTRAINT",
+      operation: "INSERT",
+      type: "PRINCIPLE",
       title: "Explanation does not prove compliance",
       canonical_statement:
         "Explanation alone does not establish that an automated system is fair, compliant, or correct.",

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("an operator creates and inspects an automatically active claim", async ({ page }) => {
+test("an operator inserts and inspects automatically active knowledge", async ({ page }) => {
   const suffix = Date.now().toString(36);
   const title = `E2E reviewer observation ${suffix}`;
   const statement = `A reviewer can trace the E2E decision path ${suffix}.`;
@@ -11,7 +11,8 @@ test("an operator creates and inspects an automatically active claim", async ({ 
   await page.getByText("Add one exact atomic statement instead").click();
   await page.getByLabel("Short title").fill(title);
   await page.getByLabel("Atomic canonical statement").fill(statement);
-  await page.getByRole("button", { name: "Create active claim" }).click();
+  await page.getByLabel("INSERT type").selectOption("OBSERVATION");
+  await page.getByRole("button", { name: "Insert knowledge" }).click();
   await expect(page.getByRole("link", { name: statement })).toBeVisible();
 
   await page.getByRole("link", { name: statement }).click();
@@ -23,7 +24,8 @@ test("an operator creates and inspects an automatically active claim", async ({ 
   await page.getByRole("button", { name: "Apply filters" }).click();
   const row = page.locator("tr").filter({ hasText: statement });
   await expect(row).toContainText("ACTIVE");
-  await expect(row).toContainText("CLAIM");
+  await expect(row).toContainText("INSERT");
+  await expect(row).toContainText("OBSERVATION");
   await expect(row).toContainText("UNVERIFIED");
 });
 
@@ -57,4 +59,16 @@ test("an operator can manage model access from settings", async ({ page }) => {
     "google/gemini-2.5-flash-lite",
   );
   await expect(page.getByRole("button", { name: "Save model access" })).toBeVisible();
+});
+
+test("challenge and extend expose target selection without an Inbox queue", async ({ page }) => {
+  await page.goto("/challenge?workspace=e2e");
+
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Challenge existing knowledge" }),
+  ).toBeVisible();
+  await expect(page.getByRole("link", { name: "Inbox" })).toHaveCount(0);
+  await expect(page.locator("aside").getByRole("link", { name: /^Challenge/ })).toBeVisible();
+  await expect(page.locator("aside").getByRole("link", { name: /^Extend/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Retrieve knowledge" })).toBeVisible();
 });

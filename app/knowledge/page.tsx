@@ -2,6 +2,8 @@ import Link from "next/link";
 import { createNodeAction } from "@/app/actions";
 import { requireOperator } from "@/src/auth/operator-auth";
 import {
+  INSERT_NODE_TYPES,
+  KNOWLEDGE_OPERATIONS,
   LIFECYCLE_STATUSES,
   NODE_TYPES,
   ORIGINS,
@@ -44,6 +46,7 @@ export default async function KnowledgeLibrary({
   const parsed = NodeListQuerySchema.parse({
     workspace_id: workspace,
     query: params.query,
+    operation: params.operation,
     type: params.type,
     origin: params.origin,
     verification: params.verification,
@@ -70,7 +73,7 @@ export default async function KnowledgeLibrary({
             className={cn(buttonVariants({ size: "lg" }), "px-4")}
             href={`/add?workspace=${workspace}`}
           >
-            Add knowledge
+            Insert knowledge
           </Link>
         }
       />
@@ -92,6 +95,16 @@ export default async function KnowledgeLibrary({
               name="query"
               placeholder="Explainability in regulated systems"
             />
+          </label>
+
+          <label className="block space-y-2 text-sm font-medium text-slate-800">
+            <span>Operation</span>
+            <NativeSelect name="operation" defaultValue={String(params.operation ?? "")}>
+              <option value="">All operations</option>
+              {KNOWLEDGE_OPERATIONS.map((value) => (
+                <option key={value}>{value}</option>
+              ))}
+            </NativeSelect>
           </label>
 
           <label className="block space-y-2 text-sm font-medium text-slate-800">
@@ -164,6 +177,9 @@ export default async function KnowledgeLibrary({
                   Atomic knowledge
                 </TableHead>
                 <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
+                  Operation
+                </TableHead>
+                <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
                   Type
                 </TableHead>
                 <TableHead className="px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
@@ -185,6 +201,9 @@ export default async function KnowledgeLibrary({
                       {node.canonical_statement}
                     </Link>
                     <span className="mt-2 block text-sm text-slate-500">{node.title}</span>
+                  </TableCell>
+                  <TableCell className="px-6 py-5 align-top font-mono text-xs uppercase tracking-[0.16em] whitespace-normal text-slate-700">
+                    {node.operation}
                   </TableCell>
                   <TableCell className="px-6 py-5 align-top font-mono text-xs uppercase tracking-[0.16em] whitespace-normal text-[#3557ff]">
                     {node.type}
@@ -228,13 +247,22 @@ export default async function KnowledgeLibrary({
         </summary>
         <div className="border-t border-[#dce3ed] px-6 py-6">
           <SectionHeader
-            eyebrow="Operator-authored claim"
-            title="Create one active claim"
-            description="This is saved directly as OPERATOR / ACTIVE. Creation does not make it verified."
+            eyebrow="INSERT / operator-authored"
+            title="Create one exact knowledge record"
+            description="Choose one INSERT type. The record activates immediately without becoming verified."
           />
 
           <form action={createNodeAction} className="mt-6 grid gap-4 md:grid-cols-2">
             <input type="hidden" name="workspace_id" value={workspace} />
+
+            <label className="block space-y-2 text-sm font-medium text-slate-800">
+              <span>INSERT type</span>
+              <NativeSelect name="type" defaultValue="OBSERVATION">
+                {INSERT_NODE_TYPES.map((value) => (
+                  <option key={value}>{value}</option>
+                ))}
+              </NativeSelect>
+            </label>
 
             <label className="block space-y-2 text-sm font-medium text-slate-800">
               <span>Verification</span>
@@ -285,7 +313,7 @@ export default async function KnowledgeLibrary({
 
             <div className="md:col-span-2">
               <Button className="px-5" size="lg" type="submit">
-                Create active claim
+                Insert knowledge
               </Button>
             </div>
           </form>

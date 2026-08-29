@@ -17,21 +17,21 @@ flowchart TB
     Admin[Operator Server Components and Actions]
     Auth[Service bearer and Access identity]
     Ingest[Ingestion and extraction service]
-    Review[Review and consolidation service]
+    Operations[Challenge, extend and consolidation service]
     Retrieval[Retrieval and usage service]
     Gateways[Provider-neutral gateways]
   end
   Routes --> Auth
   Admin --> Auth
   Routes --> Ingest
-  Routes --> Review
+  Routes --> Operations
   Routes --> Retrieval
-  Admin --> Review
+  Admin --> Operations
   Admin --> Retrieval
   Ingest --> Gateways
   Retrieval --> Gateways
   Ingest --> DB[(PostgreSQL + pgvector)]
-  Review --> DB
+  Operations --> DB
   Retrieval --> DB
 ```
 
@@ -40,8 +40,9 @@ Route Handlers use current App Router request primitives. Operator forms use Ser
 ## Transaction boundaries
 
 - Ingestion commits the immutable source before any external model call.
-- Applying extracted claims is one transaction: all nodes, edges, excerpts, versions, and the success record commit together or none do.
-- Under the current auto-activation policy, every extracted node—including the deterministic source anchor—is normalized to `CLAIM / ACTIVE`; approved-artifact ideas retain sourced `EXPRESSED_IN` provenance.
+- Applying INSERT classifications is one transaction: all nodes, edges, excerpts, versions, and the success record commit together or none do.
+- Every extracted node is `INSERT / ACTIVE` with one of five INSERT types. Approved-artifact ideas retain sourced `EXPRESSED_IN` provenance through a deterministic source `FACT`.
+- CHALLENGE and EXTEND first persist an immutable request/retrieval snapshot, then create one active, unverified result and a sourced edge back to the unchanged target.
 - Review transitions write the current row and a new version together.
 - Merge locks both nodes, rejects known contradictions, copies provenance, preserves an alias, rewrites or archives affected edges, records versions, and emits an outbox event in one transaction.
 - Retrieval records the run, selected paths, score components, context pack, and initial `SUPPLIED` usage together.
@@ -51,7 +52,7 @@ External model calls deliberately occur outside database transactions. They cann
 
 ## Provider isolation
 
-`KnowledgeExtractionGateway` and `EmbeddingGateway` are small interfaces. The default extraction adapter uses OpenRouter-compatible chat completions with strict JSON schema output. Embeddings use an independently configured OpenAI-compatible endpoint. Neither model name nor key is compiled into the application.
+`KnowledgeExtractionGateway`, `KnowledgeOperationGateway`, and `EmbeddingGateway` are small interfaces. The OpenRouter adapters use strict JSON schema output and the same workspace-managed cost-aware cascade. Embeddings use an independently configured OpenAI-compatible endpoint.
 
 Missing extraction configuration produces a durable failed attempt while source ingestion succeeds. Missing or failed embeddings use lexical and graph retrieval. Tests inject fakes and never call paid APIs.
 

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireOperator } from "@/src/auth/operator-auth";
+import { INSERT_NODE_TYPES } from "@/src/domain/enums";
 import {
   NodeCreateSchema,
   NodePatchSchema,
@@ -131,7 +132,8 @@ export async function createNodeAction(formData: FormData) {
   const raw = Object.fromEntries(formData);
   const input = NodeCreateSchema.parse({
     workspace_id: raw.workspace_id,
-    type: "CLAIM",
+    operation: "INSERT",
+    type: z.enum(INSERT_NODE_TYPES).parse(raw.type),
     title: raw.title,
     canonical_statement: raw.canonical_statement,
     origin: "OPERATOR",

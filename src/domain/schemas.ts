@@ -2,6 +2,8 @@ import { z } from "zod";
 import { MAX_SOURCE_BYTES } from "@/src/config";
 import {
   EDGE_TYPES,
+  INSERT_NODE_TYPES,
+  KNOWLEDGE_OPERATIONS,
   LIFECYCLE_STATUSES,
   NODE_TYPES,
   ORIGINS,
@@ -9,6 +11,7 @@ import {
   SOURCE_TYPES,
   USAGE_OUTCOMES,
   VERIFICATION_LEVELS,
+  nodeTypeBelongsToOperation,
 } from "@/src/domain/enums";
 
 export const WorkspaceIdSchema = z
@@ -18,6 +21,7 @@ export const WorkspaceIdSchema = z
   .regex(/^[a-z0-9][a-z0-9_-]*$/, "Use lowercase letters, digits, underscores, or hyphens.");
 
 export const UuidSchema = z.string().uuid();
+export const KnowledgeOperationSchema = z.enum(KNOWLEDGE_OPERATIONS);
 export const NodeTypeSchema = z.enum(NODE_TYPES);
 export const EdgeTypeSchema = z.enum(EDGE_TYPES);
 export const OriginSchema = z.enum(ORIGINS);
@@ -53,29 +57,40 @@ export const SourceIngestionSchema = z.object({
   auto_extract: z.boolean().default(true),
 });
 
-export const NodeCreateSchema = z.object({
-  workspace_id: WorkspaceIdSchema,
-  type: NodeTypeSchema,
-  title: z.string().trim().min(1).max(240),
-  canonical_statement: z.string().trim().min(1).max(4_000),
-  metadata: MetadataSchema,
-  origin: OriginSchema,
-  verification: VerificationSchema.default("UNVERIFIED"),
-  lifecycle_status: LifecycleSchema.default("PROPOSED"),
-  sensitivity: SensitivitySchema.default("INTERNAL"),
-  confidence: z.number().min(0).max(1).default(0.5),
-  importance: z.number().min(0).max(1).default(0.5),
-  salience: z.number().min(0).max(1).default(0.5),
-  source_links: z
-    .array(
-      z.object({
-        source_id: UuidSchema,
-        excerpt: z.string().trim().min(1).max(4_000),
-      }),
-    )
-    .max(50)
-    .default([]),
-});
+export const NodeCreateSchema = z
+  .object({
+    workspace_id: WorkspaceIdSchema,
+    operation: KnowledgeOperationSchema.default("INSERT"),
+    type: NodeTypeSchema,
+    title: z.string().trim().min(1).max(240),
+    canonical_statement: z.string().trim().min(1).max(4_000),
+    metadata: MetadataSchema,
+    origin: OriginSchema,
+    verification: VerificationSchema.default("UNVERIFIED"),
+    lifecycle_status: LifecycleSchema.default("ACTIVE"),
+    sensitivity: SensitivitySchema.default("INTERNAL"),
+    confidence: z.number().min(0).max(1).default(0.5),
+    importance: z.number().min(0).max(1).default(0.5),
+    salience: z.number().min(0).max(1).default(0.5),
+    source_links: z
+      .array(
+        z.object({
+          source_id: UuidSchema,
+          excerpt: z.string().trim().min(1).max(4_000),
+        }),
+      )
+      .max(50)
+      .default([]),
+  })
+  .superRefine((value, context) => {
+    if (!nodeTypeBelongsToOperation(value.operation, value.type)) {
+      context.addIssue({
+        code: "custom",
+        path: ["type"],
+        message: `${value.type} is not valid for the ${value.operation} operation.`,
+      });
+    }
+  });
 
 export const NodePatchSchema = z
   .object({
@@ -132,6 +147,10 @@ export const CursorSchema = z.object({
 
 export const NodeListQuerySchema = CursorSchema.extend({
   workspace_id: WorkspaceIdSchema,
+  operation: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    KnowledgeOperationSchema.optional(),
+  ),
   query: z.preprocess(
     (value) => (value === "" ? undefined : value),
     z.string().trim().max(500).optional(),
@@ -151,6 +170,53 @@ export const NodeListQuerySchema = CursorSchema.extend({
     SensitivitySchema.optional(),
   ),
 });
+
+export const KnowledgeOperationRequestSchema = z.object({
+  workspace_id: WorkspaceIdSchema,
+  target_node_id: UuidSchema,
+  operation: KnowledgeOperationSchema.exclude(["INSERT"]),
+  instruction: z.string().trim().min(3).max(2_000),
+  maximum_sensitivity: SensitivitySchema.default("INTERNAL"),
+});
+
+export const GeneratedOperationResultSchema = z
+  .object({
+    operation: KnowledgeOperationSchema.exclude(["INSERT"]),
+    type: NodeTypeSchema,
+    title: z.string().trim().min(1).max(240),
+    canonical_statement: z.string().trim().min(1).max(4_000),
+    assessment: z.enum(["SUPPORTED", "WEAKENED", "CONTRADICTED", "INCONCLUSIVE", "EXTENDED"]),
+    confidence: z.number().min(0).max(1),
+    supporting_analysis: z.string().trim().min(1).max(2_000),
+    opposing_analysis: z.string().trim().min(1).max(2_000),
+    uncertainty: z.string().trim().min(1).max(1_000),
+    evidence_gaps: z.array(z.string().trim().min(1).max(500)).max(10),
+    source_excerpt: z.string().trim().min(1).max(4_000),
+    rationale: z.string().trim().min(1).max(1_000),
+  })
+  .superRefine((value, context) => {
+    if (!nodeTypeBelongsToOperation(value.operation, value.type)) {
+      context.addIssue({
+        code: "custom",
+        path: ["type"],
+        message: `${value.type} is not valid for the ${value.operation} operation.`,
+      });
+    }
+    if (value.operation === "EXTEND" && value.assessment !== "EXTENDED") {
+      context.addIssue({
+        code: "custom",
+        path: ["assessment"],
+        message: "EXTEND results must use the EXTENDED assessment.",
+      });
+    }
+    if (value.operation === "CHALLENGE" && value.assessment === "EXTENDED") {
+      context.addIssue({
+        code: "custom",
+        path: ["assessment"],
+        message: "CHALLENGE results cannot use the EXTENDED assessment.",
+      });
+    }
+  });
 
 export const RetrievalSchema = z.object({
   workspace_id: WorkspaceIdSchema,
@@ -186,7 +252,7 @@ export const NeighborhoodQuerySchema = z.object({
 
 export const ExtractionNodeSchema = z.object({
   temp_id: z.string().trim().min(1).max(100),
-  type: NodeTypeSchema,
+  type: z.enum(INSERT_NODE_TYPES),
   title: z.string().trim().min(1).max(240),
   canonical_statement: z.string().trim().min(1).max(4_000),
   metadata: MetadataSchema,
@@ -238,3 +304,5 @@ export type NodePatchInput = z.infer<typeof NodePatchSchema>;
 export type EdgeCreateInput = z.infer<typeof EdgeCreateSchema>;
 export type RetrievalInput = z.infer<typeof RetrievalSchema>;
 export type ExtractionOutput = z.infer<typeof ExtractionOutputSchema>;
+export type KnowledgeOperationRequest = z.infer<typeof KnowledgeOperationRequestSchema>;
+export type GeneratedOperationResult = z.infer<typeof GeneratedOperationResultSchema>;

@@ -7,8 +7,8 @@ import {
   prepareUploadedFile,
 } from "@/src/services/operator-intake";
 import {
-  applyAutomaticClaimPolicy,
   applyOperatorIntakeSensitivity,
+  enforceInsertClassification,
 } from "@/src/services/source-service";
 
 describe("operator source intake", () => {
@@ -85,7 +85,7 @@ describe("operator source intake", () => {
       nodes: [
         {
           temp_id: "n1",
-          type: "CLAIM",
+          type: "OBSERVATION",
           title: "Reviewable systems",
           canonical_statement: "Reviewable systems expose evidence paths.",
           metadata: {},
@@ -108,12 +108,12 @@ describe("operator source intake", () => {
     );
   });
 
-  it("normalizes every extracted knowledge node to a claim", () => {
+  it("accepts only INSERT classifications for extracted knowledge", () => {
     const output = {
       nodes: [
         {
           temp_id: "n1",
-          type: "EVIDENCE" as const,
+          type: "FACT" as const,
           title: "Evidence paths",
           canonical_statement: "Reviewable systems expose evidence paths.",
           metadata: {},
@@ -131,6 +131,6 @@ describe("operator source intake", () => {
       audit_summary: "One statement extracted.",
     };
 
-    expect(applyAutomaticClaimPolicy(output).nodes[0].type).toBe("CLAIM");
+    expect(enforceInsertClassification(output).nodes[0].type).toBe("FACT");
   });
 });

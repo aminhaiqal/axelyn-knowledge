@@ -5,6 +5,7 @@ import { SENSITIVITY_LEVELS, VERIFICATION_LEVELS } from "@/src/domain/enums";
 import { nodeService } from "@/src/services/node-service";
 import { workspaceFrom } from "@/src/ui/workspace";
 import { AdminShell } from "@/components/admin-shell";
+import { KnowledgeOperationPanel } from "@/components/knowledge-operation-panel";
 import { PageHeader } from "@/components/page-header";
 import { TrustBadge } from "@/components/trust-badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -21,17 +22,27 @@ export default async function NodeDetail({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ workspace?: string }>;
+  searchParams: Promise<{ workspace?: string; mode?: string }>;
 }) {
   const operator = await requireOperator();
-  const workspace = workspaceFrom((await searchParams).workspace);
+  const resolvedSearchParams = await searchParams;
+  const workspace = workspaceFrom(resolvedSearchParams.workspace);
   const { id } = await params;
   const node = await nodeService.get(workspace, id);
+  const initialOperation = resolvedSearchParams.mode === "EXTEND" ? "EXTEND" : "CHALLENGE";
+  const operationResult =
+    node.metadata.operation_result && typeof node.metadata.operation_result === "object"
+      ? (node.metadata.operation_result as Record<string, unknown>)
+      : null;
+  const evidenceGaps =
+    operationResult && Array.isArray(operationResult.evidence_gaps)
+      ? operationResult.evidence_gaps.map(String)
+      : [];
 
   return (
     <AdminShell operator={operator} workspace={workspace}>
       <PageHeader
-        eyebrow={`${node.type.replaceAll("_", " ")} / version ${node.current_version}`}
+        eyebrow={`${node.operation} / ${node.type.replaceAll("_", " ")} / version ${node.current_version}`}
         title={node.title}
         description="One atomic memory with its trust state, immutable provenance, revision trail, graph neighborhood, and usage history."
         actions={
@@ -48,6 +59,9 @@ export default async function NodeDetail({
         <Surface className="p-6 sm:p-8">
           <div className="space-y-6">
             <div className="flex flex-wrap gap-2">
+              <span className="border border-[#cfd9ee] bg-[#f3f6ff] px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#3557ff]">
+                {node.operation}
+              </span>
               <TrustBadge kind="origin" value={node.origin} />
               <TrustBadge kind="verification" value={node.verification} />
               <TrustBadge kind="lifecycle" value={node.lifecycle_status} />
@@ -57,6 +71,66 @@ export default async function NodeDetail({
             <blockquote className="border-l-[3px] border-[#3557ff] pl-6 font-serif text-3xl leading-tight tracking-tight text-slate-950 sm:text-4xl">
               {node.canonical_statement}
             </blockquote>
+
+            {operationResult ? (
+              <section className="border border-[#dce3ed] bg-[#f7f9fc] p-5">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#dce3ed] pb-4">
+                  <div>
+                    <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#3557ff]">
+                      Generated judgment
+                    </p>
+                    <h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-950">
+                      {String(operationResult.assessment ?? "Assessment unavailable")}
+                    </h2>
+                  </div>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-slate-500">
+                    {String(operationResult.model ?? "Unknown model")}
+                  </span>
+                </div>
+                <dl className="mt-4 grid gap-4 md:grid-cols-2">
+                  <div className="border border-[#dce3ed] bg-white p-4">
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      Supporting case
+                    </dt>
+                    <dd className="mt-2 text-sm leading-6 text-slate-700">
+                      {String(operationResult.supporting_analysis ?? "Not supplied")}
+                    </dd>
+                  </div>
+                  <div className="border border-[#dce3ed] bg-white p-4">
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      Opposing case
+                    </dt>
+                    <dd className="mt-2 text-sm leading-6 text-slate-700">
+                      {String(operationResult.opposing_analysis ?? "Not supplied")}
+                    </dd>
+                  </div>
+                  <div className="border border-[#dce3ed] bg-white p-4 md:col-span-2">
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      Uncertainty
+                    </dt>
+                    <dd className="mt-2 text-sm leading-6 text-slate-700">
+                      {String(operationResult.uncertainty ?? "Not supplied")}
+                    </dd>
+                  </div>
+                  <div className="border border-[#dce3ed] bg-white p-4 md:col-span-2">
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                      Evidence gaps
+                    </dt>
+                    <dd className="mt-2 text-sm leading-6 text-slate-700">
+                      {evidenceGaps.length ? (
+                        <ul className="list-disc space-y-1 pl-5">
+                          {evidenceGaps.map((gap) => (
+                            <li key={gap}>{gap}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        "No evidence gaps supplied."
+                      )}
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+            ) : null}
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {[
@@ -190,6 +264,18 @@ export default async function NodeDetail({
         </Surface>
 
         <aside className="space-y-6">
+          <KnowledgeOperationPanel
+            initialOperation={initialOperation}
+            target={{
+              id: node.id,
+              title: node.title,
+              operation: node.operation,
+              type: node.type,
+              sensitivity: node.sensitivity,
+            }}
+            workspace={workspace}
+          />
+
           <Surface className="p-6">
             <SectionHeader
               eyebrow={`Correction creates v${node.current_version + 1}`}

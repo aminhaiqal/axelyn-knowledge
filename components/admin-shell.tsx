@@ -4,12 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import {
-  BrainCircuit,
   GitBranchPlus,
   LibraryBig,
   Menu,
+  MoveUpRight,
   Orbit,
   Plus,
+  Search,
   Settings2,
   Sparkles,
 } from "lucide-react";
@@ -34,9 +35,21 @@ const navigation = [
   },
   {
     href: "/add",
-    label: "Add knowledge",
-    detail: "Source intake",
+    label: "Insert",
+    detail: "FACT · OBSERVATION · +3",
     icon: GitBranchPlus,
+  },
+  {
+    href: "/challenge",
+    label: "Challenge",
+    detail: "CLAIM · EVIDENCE · HYPOTHESIS",
+    icon: Search,
+  },
+  {
+    href: "/extend",
+    label: "Extend",
+    detail: "ARGUMENT · INSIGHT",
+    icon: MoveUpRight,
   },
   {
     href: "/knowledge",
@@ -49,12 +62,6 @@ const navigation = [
     label: "Memory map",
     detail: "Bounded graph view",
     icon: Orbit,
-  },
-  {
-    href: "/retrieval",
-    label: "Retrieval lab",
-    detail: "Inspect recalled context",
-    icon: BrainCircuit,
   },
   {
     href: "/settings",
@@ -156,7 +163,7 @@ export function AdminShell({
           </Link>
 
           <p className="mt-5 max-w-xs text-sm leading-6 text-slate-400">
-            Editorial memory workspace for capture, retrieval, and structured knowledge.
+            Three bounded operations for inserting, challenging, and extending knowledge.
           </p>
 
           <Link
@@ -166,7 +173,7 @@ export function AdminShell({
             )}
             href={`/add?workspace=${workspace}`}
           >
-            New knowledge
+            Insert knowledge
             <Plus className="size-4" />
           </Link>
 
@@ -194,7 +201,7 @@ export function AdminShell({
           </div>
 
           <p className="mt-4 text-xs leading-5 text-slate-500">
-            New knowledge activates as a claim. Verification stays explicit and separate.
+            One record, one operation. Verification stays explicit and separate.
           </p>
         </div>
       </aside>

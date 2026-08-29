@@ -103,8 +103,8 @@ export async function addKnowledgeSourceAction(
       status: "success",
       message:
         extraction?.status === "SUCCEEDED"
-          ? "Source saved and extracted claims are active in the library."
-          : "Source saved. Automatic extraction needs attention before claims can be activated.",
+          ? "Source saved and classified INSERT records are active in the library."
+          : "Source saved. Automatic classification needs attention before knowledge can be inserted.",
       sourceId: result.source.id,
       sourceLabel,
       extractionStatus: extraction?.status,

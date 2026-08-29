@@ -26,7 +26,7 @@ export default async function SettingsPage({
       <PageHeader
         eyebrow="Settings / secure provider access"
         title="Model access"
-        description="Control the credential and model route Axelyn uses to turn source material into reviewable knowledge. Keys stay encrypted and write-only."
+        description="Control the encrypted OpenRouter credential and cost-aware model route used for classification, challenge, and extension."
       />
       <ProviderSettingsForm settings={settings} workspace={workspace} />
     </AdminShell>

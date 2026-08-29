@@ -59,7 +59,7 @@ export default async function MemoryMap({
 
       {!graph || !rootId ? (
         <EmptyState
-          description="Add source material to activate claims and relationships automatically."
+          description="Insert source material to activate classified knowledge and relationships."
           title="No active graph exists yet."
         />
       ) : (

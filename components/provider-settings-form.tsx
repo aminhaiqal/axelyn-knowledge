@@ -16,9 +16,9 @@ import { SectionHeader, Surface } from "@/components/ui/workspace";
 const initialState: ProviderSettingsActionState = { status: "idle" };
 
 const tierCopy = [
-  ["Routine", "Runs first for the lowest normal cost."],
-  ["Escalation", "Runs only when routine output fails validation."],
-  ["Final fallback", "Reserved for the last quality attempt."],
+  ["Routine", "Classifies INSERT records and attempts grounded judgments first."],
+  ["Adjudicator", "Reviews CHALLENGE judgments; otherwise runs only after invalid output."],
+  ["Final fallback", "Reviews unresolved challenges or handles the last quality attempt."],
 ] as const;
 
 function ActionMessage({ state }: { state: ProviderSettingsActionState }) {
@@ -145,6 +145,12 @@ export function ProviderSettingsForm({
             </div>
 
             <div className="border border-[#dce3ed] bg-white">
+              <div className="border-b border-[#dce3ed] bg-[#f7f9fc] px-4 py-3 text-xs leading-5 text-slate-600">
+                <strong className="font-semibold text-slate-950">Recommended routine model:</strong>{" "}
+                google/gemini-2.5-flash-lite for low-cost structured classification. CHALLENGE sends
+                its first valid judgment to the next configured model for adjudication; routine
+                INSERT and EXTEND stop at the first valid result.
+              </div>
               {models.map((model, index) => {
                 const copy = tierCopy[index] ?? [
                   `Fallback ${index + 1}`,
@@ -285,7 +291,7 @@ export function ProviderSettingsForm({
               <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-500">
                 <li>Encrypted with AES-256-GCM before database storage.</li>
                 <li>Never returned by a page, action, or API response.</li>
-                <li>Provider routes must support the extraction schema.</li>
+                <li>Provider routes must support strict structured output.</li>
               </ul>
             </div>
           </div>

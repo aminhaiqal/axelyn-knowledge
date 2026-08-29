@@ -34,7 +34,7 @@ const EXTRACTION_JSON_SCHEMA = {
           temp_id: { type: "string" },
           type: {
             type: "string",
-            enum: ["CLAIM"],
+            enum: ["FACT", "OBSERVATION", "PRINCIPLE", "DECISION", "PROCEDURE"],
           },
           title: { type: "string" },
           canonical_statement: { type: "string" },

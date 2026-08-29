@@ -3,7 +3,12 @@ import { isDeepStrictEqual } from "node:util";
 import { withTransaction, query } from "@/src/db/pool";
 import { mapSource, vectorLiteral } from "@/src/db/records";
 import { conflict, notFound } from "@/src/domain/errors";
-import type { Origin, Sensitivity, Verification } from "@/src/domain/enums";
+import {
+  nodeTypeBelongsToOperation,
+  type Origin,
+  type Sensitivity,
+  type Verification,
+} from "@/src/domain/enums";
 import { validateGroundedExtraction } from "@/src/domain/extraction-quality";
 import type { KnowledgeSource } from "@/src/domain/models";
 import { sha256, statementHash } from "@/src/domain/normalize";
@@ -79,14 +84,15 @@ export function applyOperatorIntakeSensitivity(
   });
 }
 
-export function applyAutomaticClaimPolicy(output: ExtractionOutput): ExtractionOutput {
-  return ExtractionOutputSchema.parse({
-    ...output,
-    nodes: output.nodes.map((node) => ({ ...node, type: "CLAIM" })),
-  });
+export function enforceInsertClassification(output: ExtractionOutput): ExtractionOutput {
+  const parsed = ExtractionOutputSchema.parse(output);
+  if (parsed.nodes.some((node) => !nodeTypeBelongsToOperation("INSERT", node.type))) {
+    throw new Error("INSERT extraction returned a type outside its operation boundary.");
+  }
+  return parsed;
 }
 
-export function ensureApprovedArtifact(
+export function ensureApprovedSourceFact(
   source: KnowledgeSource,
   output: ExtractionOutput,
 ): ExtractionOutput {
@@ -94,18 +100,18 @@ export function ensureApprovedArtifact(
 
   const nodes = [...output.nodes];
   const edges = [...output.edges];
-  let artifact = nodes.find((node) => node.type === "ARTIFACT");
-  if (!artifact) {
+  let sourceFact = nodes.find((node) => node.metadata.knowledge_role === "SOURCE_FACT_ANCHOR");
+  if (!sourceFact) {
     let tempId = "__approved_artifact";
     const usedIds = new Set(nodes.map((node) => node.temp_id));
     while (usedIds.has(tempId)) tempId = `${tempId}_anchor`;
-    artifact = {
+    sourceFact = {
       temp_id: tempId,
-      type: "ARTIFACT",
-      title: `Approved artifact · ${source.external_id}`.slice(0, 240),
-      canonical_statement: `Approved artifact ${source.source_system}:${source.external_id}:v${source.source_version}.`,
+      type: "FACT",
+      title: `Approved source · ${source.external_id}`.slice(0, 240),
+      canonical_statement: `This approved source is ${source.source_system}:${source.external_id}:v${source.source_version}.`,
       metadata: {
-        knowledge_role: "SOURCE_ARTIFACT_ANCHOR",
+        knowledge_role: "SOURCE_FACT_ANCHOR",
         source_system: source.source_system,
         source_type: source.source_type,
         external_id: source.external_id,
@@ -118,23 +124,23 @@ export function ensureApprovedArtifact(
       source_excerpt: source.content.slice(0, 4_000),
       suggested_duplicate_candidates: [],
       potential_contradictions: [],
-      rationale: "Deterministic artifact anchor for provenance and graph navigation.",
+      rationale: "Deterministic source fact for provenance and graph navigation.",
     };
-    nodes.push(artifact);
+    nodes.push(sourceFact);
   }
 
   for (const node of nodes) {
-    if (node.temp_id === artifact.temp_id) continue;
+    if (node.temp_id === sourceFact.temp_id) continue;
     const alreadyConnected = edges.some(
       (edge) =>
         edge.source_temp_id === node.temp_id &&
-        edge.target_temp_id === artifact.temp_id &&
+        edge.target_temp_id === sourceFact.temp_id &&
         edge.type === "EXPRESSED_IN",
     );
     if (!alreadyConnected) {
       edges.push({
         source_temp_id: node.temp_id,
-        target_temp_id: artifact.temp_id,
+        target_temp_id: sourceFact.temp_id,
         type: "EXPRESSED_IN",
         strength: 1,
         confidence: node.confidence,
@@ -360,10 +366,10 @@ export class SourceService {
 
     try {
       const extracted = await extractionGateway.extract(source);
-      const proposals = applyAutomaticClaimPolicy(
+      const proposals = enforceInsertClassification(
         applyOperatorIntakeSensitivity(
           source,
-          ensureApprovedArtifact(source, ExtractionOutputSchema.parse(extracted.output)),
+          ensureApprovedSourceFact(source, ExtractionOutputSchema.parse(extracted.output)),
         ),
       );
       validateGroundedExtraction(source, proposals);
@@ -493,10 +499,10 @@ export class SourceService {
         };
         const inserted = await client.query<{ id: string }>(
           `INSERT INTO knowledge_nodes (
-            workspace_id, type, title, canonical_statement, statement_hash, metadata,
+            workspace_id, operation, type, title, canonical_statement, statement_hash, metadata,
             origin, verification, lifecycle_status, sensitivity, confidence, importance,
             salience, embedding, created_by, updated_by
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'ACTIVE', $9, $10, $11,
+          ) VALUES ($1, 'INSERT', $2, $3, $4, $5, $6, $7, $8, 'ACTIVE', $9, $10, $11,
             $12, $13::vector, $14, $14)
           RETURNING id`,
           [
@@ -530,7 +536,7 @@ export class SourceService {
           source.workspace_id,
           id,
           actor,
-          "Automatically activated from immutable source as CLAIM",
+          "Automatically classified and activated as INSERT knowledge",
         );
       }
 
@@ -569,7 +575,7 @@ export class SourceService {
           source.workspace_id,
           edgeId,
           actor,
-          "Automatically activated with extracted claims",
+          "Automatically activated with classified INSERT knowledge",
         );
       }
 

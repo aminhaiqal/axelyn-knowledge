@@ -1,18 +1,21 @@
-export const NODE_TYPES = [
-  "EPISODE",
-  "SIGNAL",
+export const KNOWLEDGE_OPERATIONS = ["INSERT", "CHALLENGE", "EXTEND"] as const;
+
+export const INSERT_NODE_TYPES = [
+  "FACT",
   "OBSERVATION",
-  "CLAIM",
-  "CONCEPT",
-  "ENTITY",
-  "EXPERIENCE",
-  "EVIDENCE",
-  "CONSTRAINT",
-  "COUNTERARGUMENT",
-  "POSITION",
-  "AUDIENCE_INSIGHT",
-  "VOICE_PATTERN",
-  "ARTIFACT",
+  "PRINCIPLE",
+  "DECISION",
+  "PROCEDURE",
+] as const;
+
+export const CHALLENGE_NODE_TYPES = ["CLAIM", "EVIDENCE", "HYPOTHESIS"] as const;
+
+export const EXTEND_NODE_TYPES = ["ARGUMENT", "INSIGHT"] as const;
+
+export const NODE_TYPES = [
+  ...INSERT_NODE_TYPES,
+  ...CHALLENGE_NODE_TYPES,
+  ...EXTEND_NODE_TYPES,
 ] as const;
 
 export const EDGE_TYPES = [
@@ -56,6 +59,7 @@ export const SOURCE_TYPES = [
   "published_artifact",
   "external_source",
   "correction",
+  "operation_request",
 ] as const;
 
 export const EXTRACTION_STATUSES = ["PENDING", "RUNNING", "SUCCEEDED", "FAILED"] as const;
@@ -70,6 +74,7 @@ export const USAGE_OUTCOMES = [
   "CONTRADICTED",
 ] as const;
 
+export type KnowledgeOperation = (typeof KNOWLEDGE_OPERATIONS)[number];
 export type NodeType = (typeof NODE_TYPES)[number];
 export type EdgeType = (typeof EDGE_TYPES)[number];
 export type Origin = (typeof ORIGINS)[number];
@@ -79,6 +84,16 @@ export type Sensitivity = (typeof SENSITIVITY_LEVELS)[number];
 export type SourceType = (typeof SOURCE_TYPES)[number];
 export type ExtractionStatus = (typeof EXTRACTION_STATUSES)[number];
 export type UsageOutcome = (typeof USAGE_OUTCOMES)[number];
+
+export const NODE_TYPES_BY_OPERATION: Record<KnowledgeOperation, readonly NodeType[]> = {
+  INSERT: INSERT_NODE_TYPES,
+  CHALLENGE: CHALLENGE_NODE_TYPES,
+  EXTEND: EXTEND_NODE_TYPES,
+};
+
+export function nodeTypeBelongsToOperation(operation: KnowledgeOperation, type: NodeType): boolean {
+  return NODE_TYPES_BY_OPERATION[operation].includes(type);
+}
 
 export const SENSITIVITY_RANK: Record<Sensitivity, number> = {
   PUBLIC: 0,

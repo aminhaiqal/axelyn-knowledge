@@ -143,7 +143,7 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
                   <p className="text-sm leading-6 text-slate-600">{state.message}</p>
                   {state.extractionStatus === "SUCCEEDED" ? (
                     <div className="flex flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
-                      <span>{state.createdNodes} active claims</span>
+                      <span>{state.createdNodes} inserted records</span>
                       <span>{state.createdEdges} active relationships</span>
                     </div>
                   ) : (
@@ -248,7 +248,8 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
 
             <div className="flex flex-col gap-4 border-t border-[#dce3ed] pt-5 md:flex-row md:items-center md:justify-between">
               <p className="max-w-2xl text-sm leading-7 text-slate-600">
-                This activates reusable claims in the library. It does not mark facts as verified.
+                This activates classified INSERT records in the library. It does not mark them as
+                verified.
               </p>
               <Button className="px-5" disabled={pending} size="lg" type="submit">
                 {pending ? "Reading source…" : selected.actionLabel}
@@ -274,8 +275,8 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
         </div>
 
         <p className="mt-4 max-w-sm text-sm leading-7 text-slate-400">
-          The pipeline preserves the source, extracts bounded ideas, and activates them as
-          unverified claims.
+          The pipeline preserves the source, classifies bounded ideas, and activates them as active,
+          unverified knowledge.
         </p>
 
         <dl className="mt-8 space-y-4">
@@ -319,8 +320,8 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
         <div className="mt-8 space-y-5">
           {[
             ["01", "Preserve the source", "Immutable text and provenance"],
-            ["02", "Extract atomic ideas", "Grounded claims and typed relationships"],
-            ["03", "Activate the claims", "Available immediately, still unverified"],
+            ["02", "Classify atomic records", "One of five INSERT types for each record"],
+            ["03", "Activate knowledge", "Available immediately, still unverified"],
           ].map(([step, title, description], index) => (
             <div className="relative flex gap-4 pl-1" key={step}>
               {index < 2 ? (

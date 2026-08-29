@@ -35,7 +35,7 @@ export default async function Dashboard({
       <PageHeader
         eyebrow="Memory register / live state"
         title="What the system currently remembers"
-        description="A trust-aware register of reusable claims and their source-grounded verification state. New knowledge activates immediately; factual verification remains explicit and separate."
+        description="Every record has one operation: insert what is known, challenge what already exists, or extend it into a new argument or insight."
         actions={
           <>
             <Link
@@ -48,7 +48,7 @@ export default async function Dashboard({
               className={cn(buttonVariants({ size: "lg" }), "px-4")}
               href={`/add?workspace=${workspace}`}
             >
-              Add knowledge
+              Insert knowledge
             </Link>
           </>
         }
@@ -56,13 +56,9 @@ export default async function Dashboard({
 
       <section aria-label="Knowledge totals" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Total knowledge" value={Number(totals.total ?? 0)} />
-        <MetricCard label="Active claims" value={Number(totals.active_claims ?? 0)} />
-        <MetricCard label="Unverified claims" value={Number(totals.unverified_claims ?? 0)} />
-        <MetricCard
-          description="Failed extraction attempts still preserved at the source layer."
-          label="Extraction failures"
-          value={dashboard.extraction_failures.length}
-        />
+        <MetricCard label="Inserted" value={Number(totals.inserted_knowledge ?? 0)} />
+        <MetricCard label="Challenges" value={Number(totals.challenges ?? 0)} />
+        <MetricCard label="Extensions" value={Number(totals.extensions ?? 0)} />
       </section>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_360px]">
@@ -76,8 +72,8 @@ export default async function Dashboard({
                 Open library
               </Link>
             }
-            eyebrow="Active memory"
-            title="Recently activated claims"
+            eyebrow="Active memory / one operation each"
+            title="Recently changed knowledge"
           />
 
           {dashboard.recent_knowledge.length ? (
@@ -107,7 +103,7 @@ export default async function Dashboard({
                           {String(node.title)}
                         </Link>
                         <span className="mt-2 block text-sm text-slate-500">
-                          {String(node.type).replaceAll("_", " ")}
+                          {String(node.operation)} · {String(node.type).replaceAll("_", " ")}
                         </span>
                       </TableCell>
                       <TableCell className="px-6 py-5 align-top">
@@ -123,8 +119,8 @@ export default async function Dashboard({
             </Surface>
           ) : (
             <EmptyState
-              description="Add source material to extract and activate reusable claims."
-              title="No active claims yet."
+              description="Use INSERT to add the first knowledge record."
+              title="No active knowledge yet."
             />
           )}
         </section>

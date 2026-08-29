@@ -1,4 +1,5 @@
 import { apiRoute, parseJson, resolveWorkspace } from "@/src/api/http";
+import { badRequest } from "@/src/domain/errors";
 import { NodeCreateSchema, NodeListQuerySchema } from "@/src/domain/schemas";
 import { nodeService } from "@/src/services/node-service";
 
@@ -17,10 +18,13 @@ export async function POST(request: Request) {
   return apiRoute(request, async ({ identity }) => {
     const requested = await parseJson(request, NodeCreateSchema);
     resolveWorkspace(request, identity, requested.workspace_id);
-    const node = await nodeService.create(
-      { ...requested, type: "CLAIM", lifecycle_status: "ACTIVE" },
-      `service:${identity.id}`,
-    );
+    if (requested.operation !== "INSERT") {
+      throw badRequest(
+        "OPERATION_ROUTE_REQUIRED",
+        "CHALLENGE and EXTEND must use the grounded operation route.",
+      );
+    }
+    const node = await nodeService.create(requested, `service:${identity.id}`);
     return Response.json(node, { status: 201 });
   });
 }

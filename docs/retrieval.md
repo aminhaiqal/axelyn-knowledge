@@ -35,19 +35,18 @@ When embeddings fail, semantic relevance is zero and lexical/graph stages contin
 
 ## Contradictions and diversification
 
-Active `CONTRADICTS` edges are loaded for the candidate set. When the top candidate has a reachable contradiction, the best such node is protected during selection, subject to the caller's explicit sensitivity, verification, depth, and token ceilings. Constraints and counterarguments are also exempt from ordinary cluster caps. Contradictions are returned both as items and compact cross-references.
+Active `CONTRADICTS` edges are loaded for the candidate set. When the top candidate has a reachable contradiction, the best such node is protected during selection, subject to the caller's explicit sensitivity, verification, depth, and token ceilings. Principles and arguments are also exempt from ordinary cluster caps. Contradictions are returned both as items and compact cross-references.
 
 ## Working-memory contract
 
 The context pack is a structured object, never one flattened prose block. Its sections are:
 
-- verified/supportable knowledge;
-- user-supplied observations;
-- unverified generated insights;
-- constraints and prohibited claims;
+- facts and observations;
+- principles, decisions, and procedures;
+- challenge results;
+- hypotheses and uncertainty;
+- arguments and insights;
 - contradictions and caveats;
-- prior approved positioning;
-- voice patterns.
 
 Each item includes trust labels and compact provenance. Unverified and disputed items include explicit downstream caveats. Token estimation is deterministic (`max(words × 1.3, characters / 4)`) over the serialized envelope and each serialized entry. This intentionally over-allocates repeated JSON structure; the service returns a validation error if the base envelope alone exceeds the requested budget.
 

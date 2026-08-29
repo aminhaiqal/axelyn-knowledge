@@ -1,6 +1,6 @@
 # Axelyn Knowledge
 
-Axelyn Knowledge is a shared, provenance-aware associative memory service for Axelyn applications and agents. It stores immutable source episodes, atomic semantic knowledge, approved procedures and constraints, and bounded request-specific working memory without confusing generated interpretation, editorial approval, or factual verification.
+Axelyn Knowledge is a shared, provenance-aware associative memory service for Axelyn applications and agents. Every atomic record belongs to exactly one operation: INSERT adds knowledge, CHALLENGE tests existing knowledge, and EXTEND develops it. Generated interpretation, activation, and factual verification remain separate.
 
 ## Architecture
 
@@ -25,14 +25,16 @@ See [architecture](docs/architecture.md), [knowledge model](docs/knowledge-model
 
 ## Trust model
 
-Every node carries four independent labels:
+Every node carries one exclusive operation plus four independent trust labels:
+
+- Operation: `INSERT`, `CHALLENGE`, or `EXTEND`.
 
 - Origin: who or what supplied the content.
-- Verification: whether a human or source supports the claim.
+- Verification: whether a human or source supports the statement.
 - Lifecycle: whether knowledge is active, rejected, archived, or retained in a legacy proposed state.
 - Sensitivity: the highest audience allowed to retrieve it.
 
-The current operator policy activates new knowledge immediately as `CLAIM / ACTIVE`; there is no human-review Inbox. Automatic activation does **not** change `UNVERIFIED` to a verified state. Repeated use can change a capped usefulness score; it also never changes verification. Corrections create revisions or explicit contradictions/superseding relationships instead of erasing history.
+Knowledge is active immediately; there is no human-review Inbox. Automatic activation does **not** change `UNVERIFIED` to a verified state. PostgreSQL enforces the operation/type partition, so one record cannot belong to more than one operation. Repeated use can change a capped usefulness score but never verification. Corrections create revisions or explicit relationships instead of erasing history.
 
 ## Local setup
 
@@ -50,17 +52,19 @@ npm run dev
 
 Open <http://localhost:3000>. The example environment enables the development-only operator identity. It is hard-disabled whenever `NODE_ENV=production`.
 
-The seed builds a fixed explainability-in-regulated-systems graph containing a user signal, human-confirmed observation, unverified AI interpretation, supporting evidence, counterargument, approved positioning, voice pattern, and later correction.
+The seed builds a fixed explainability-in-regulated-systems graph spanning inserted observations, principles and procedures, challenge evidence, and extended arguments and insights.
 
 ## Add knowledge from the operator console
 
-Open **Add knowledge** in the sidebar to create a source from:
+Open **Insert** in the sidebar to create a source from:
 
 - pasted notes, transcripts, research, or drafts;
 - PDF, TXT, Markdown, CSV, JSON, or HTML files up to 8 MB; or
 - one public web page or PDF URL.
 
-The console preserves readable source text as an immutable provenance record, then uses the configured extraction gateway to create atomic claims and typed relationships. By default, one OpenRouter key drives a cost-aware model cascade: Gemini 2.5 Flash Lite handles routine extraction, GPT-5 Mini retries output that fails schema or provenance validation, and Claude Sonnet 4.6 is the final quality fallback. Set `EXTRACTION_MODELS` to override that order or the legacy `EXTRACTION_MODEL` to force one model. Extracted knowledge is stored immediately as `CLAIM / ACTIVE`; it remains `UNVERIFIED` unless the source carries an explicit verification assertion. The operator-selected sensitivity is applied to every claim from that import.
+The console preserves readable source text as immutable provenance, then classifies each atomic INSERT record as `FACT`, `OBSERVATION`, `PRINCIPLE`, `DECISION`, or `PROCEDURE`. By default, one OpenRouter key drives a cost-aware cascade: Gemini 2.5 Flash Lite handles routine structured classification and first-pass grounded operations, GPT-5 Mini adjudicates valid CHALLENGE judgments or retries invalid routine output, and Claude Sonnet 4.6 is the final fallback. Set `EXTRACTION_MODELS` to override that order or the legacy `EXTRACTION_MODEL` to force one model. Inserted knowledge becomes `ACTIVE` immediately but remains `UNVERIFIED` unless the source carries an explicit verification assertion.
+
+**Challenge** retrieves one existing target and bounded supporting context, then creates one separate `CLAIM`, `EVIDENCE`, or `HYPOTHESIS` with supporting analysis, opposing analysis, uncertainty, and evidence gaps. **Extend** creates one linked `ARGUMENT` or `INSIGHT` that adds a distinct implication. Both operations leave the target unchanged and store the selected model and retrieval audit.
 
 PDF import supports text-based documents with up to 150 pages; image-only scans require OCR before upload. Website import fetches one public page without executing JavaScript or following links. Local and private network destinations are blocked. If extraction is not configured, the source is still saved and the failed attempt appears on the Register. Configure `EXTRACTION_API_KEY` (or `OPENROUTER_API_KEY`) to enable the default cascade.
 

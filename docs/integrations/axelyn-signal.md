@@ -40,7 +40,7 @@ curl -sS http://axelyn-knowledge.internal/api/v1/sources \
   }'
 ```
 
-This source is `APPROVED_COPY`, but extracted claims remain `UNVERIFIED` because no factual verification assertion was supplied. If an operator explicitly checked a claim, include a top-level `verification_assertion` with level, actor, and reason; do not infer it from `approved_at`.
+This source is `APPROVED_COPY`, but its INSERT records remain `UNVERIFIED` because no factual verification assertion was supplied. If an operator explicitly checked a statement, include a top-level `verification_assertion` with level, actor, and reason; do not infer it from `approved_at`.
 
 The ingestion response succeeds even when extraction is unconfigured or unavailable. Inspect its extraction ID/status and retry with `POST /api/v1/sources/{sourceId}/extractions`.
 
@@ -56,7 +56,7 @@ curl -sS http://axelyn-knowledge.internal/api/v1/context/retrieve \
     "purpose": "Prepare a new LinkedIn draft",
     "requesting_system": "axelyn-signal",
     "audience": "Technology leaders in regulated industries",
-    "desired_node_types": ["POSITION", "CLAIM", "EVIDENCE", "CONSTRAINT", "COUNTERARGUMENT", "VOICE_PATTERN"],
+    "desired_node_types": ["FACT", "OBSERVATION", "PRINCIPLE", "CLAIM", "EVIDENCE", "ARGUMENT", "INSIGHT"],
     "allowed_verification_levels": ["UNVERIFIED", "HUMAN_CONFIRMED", "SOURCE_SUPPORTED", "DISPUTED"],
     "maximum_sensitivity": "INTERNAL",
     "maximum_graph_depth": 2,

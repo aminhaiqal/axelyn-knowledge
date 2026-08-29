@@ -139,6 +139,11 @@ paths:
       parameters:
         - $ref: "#/components/parameters/Workspace"
         - { name: query, in: query, schema: { type: string, maxLength: 500 } }
+        - {
+            name: operation,
+            in: query,
+            schema: { $ref: "#/components/schemas/KnowledgeOperation" },
+          }
         - { name: type, in: query, schema: { $ref: "#/components/schemas/NodeType" } }
         - { name: origin, in: query, schema: { $ref: "#/components/schemas/Origin" } }
         - { name: verification, in: query, schema: { $ref: "#/components/schemas/Verification" } }
@@ -165,7 +170,7 @@ paths:
                   next_cursor: { type: [string, "null"] }
     post:
       tags: [Knowledge]
-      summary: Create an automatically active atomic claim
+      summary: INSERT one automatically active atomic knowledge record
       requestBody:
         required: true
         content:
@@ -178,6 +183,22 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Node" }
         "400": { $ref: "#/components/responses/BadRequest" }
+  /api/v1/knowledge/nodes/{id}/operations:
+    parameters: [{ $ref: "#/components/parameters/Id" }]
+    post:
+      tags: [Knowledge]
+      summary: CHALLENGE or EXTEND one active target using bounded retrieved context
+      description: Creates exactly one separate, unverified result and a typed edge. The target is not mutated.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/KnowledgeOperationRequest" }
+      responses:
+        "201": { description: Generated operation result and relationship. }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
   /api/v1/knowledge/nodes/{id}:
     parameters:
       - $ref: "#/components/parameters/Id"
@@ -392,21 +413,20 @@ components:
       type: string
       enum:
         [
-          EPISODE,
-          SIGNAL,
+          FACT,
           OBSERVATION,
+          PRINCIPLE,
+          DECISION,
+          PROCEDURE,
           CLAIM,
-          CONCEPT,
-          ENTITY,
-          EXPERIENCE,
           EVIDENCE,
-          CONSTRAINT,
-          COUNTERARGUMENT,
-          POSITION,
-          AUDIENCE_INSIGHT,
-          VOICE_PATTERN,
-          ARTIFACT,
+          HYPOTHESIS,
+          ARGUMENT,
+          INSIGHT,
         ]
+    KnowledgeOperation:
+      type: string
+      enum: [INSERT, CHALLENGE, EXTEND]
     EdgeType:
       type: string
       enum:
@@ -464,6 +484,7 @@ components:
               published_artifact,
               external_source,
               correction,
+              operation_request,
             ]
         external_id: { type: string, minLength: 1, maxLength: 300 }
         source_version: { type: integer, minimum: 1 }
@@ -523,9 +544,11 @@ components:
       required: [workspace_id, type, title, canonical_statement, origin]
       properties:
         workspace_id: { $ref: "#/components/schemas/WorkspaceId" }
-        type:
-          allOf: [{ $ref: "#/components/schemas/NodeType" }]
-          description: Currently normalized to CLAIM by the service policy.
+        operation:
+          allOf: [{ $ref: "#/components/schemas/KnowledgeOperation" }]
+          default: INSERT
+          description: Direct node creation accepts INSERT only. Use the operations endpoint for CHALLENGE or EXTEND.
+        type: { $ref: "#/components/schemas/NodeType" }
         title: { type: string, minLength: 1, maxLength: 240 }
         canonical_statement: { type: string, minLength: 1, maxLength: 4000 }
         metadata: { type: object, additionalProperties: true, default: {} }
@@ -546,7 +569,16 @@ components:
       allOf:
         - $ref: "#/components/schemas/NodeCreate"
         - type: object
-          required: [id, statement_hash, usefulness_score, current_version, created_at, updated_at]
+          required:
+            [
+              id,
+              operation,
+              statement_hash,
+              usefulness_score,
+              current_version,
+              created_at,
+              updated_at,
+            ]
           properties:
             id: { type: string, format: uuid }
             statement_hash: { type: string }
@@ -554,6 +586,17 @@ components:
             current_version: { type: integer, minimum: 1 }
             created_at: { type: string, format: date-time }
             updated_at: { type: string, format: date-time }
+    KnowledgeOperationRequest:
+      type: object
+      additionalProperties: false
+      required: [workspace_id, operation, instruction]
+      properties:
+        workspace_id: { $ref: "#/components/schemas/WorkspaceId" }
+        operation: { type: string, enum: [CHALLENGE, EXTEND] }
+        instruction: { type: string, minLength: 3, maxLength: 2000 }
+        maximum_sensitivity:
+          allOf: [{ $ref: "#/components/schemas/Sensitivity" }]
+          default: INTERNAL
     NodePatch:
       type: object
       required: [workspace_id, expected_version, change_reason]

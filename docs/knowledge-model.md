@@ -3,21 +3,29 @@
 ## Memory layers
 
 - Episodic memory: `knowledge_sources` contains immutable event and experience snapshots.
-- Semantic memory: atomic nodes and typed relationships encode reusable claims, evidence, entities, concepts, observations, and positions.
-- Procedural memory: constraint and voice-pattern nodes encode approved working rules.
+- Semantic memory: atomic nodes and typed relationships encode inserted, challenged, and extended knowledge.
+- Procedural memory: `PRINCIPLE`, `DECISION`, and `PROCEDURE` records encode durable working rules.
 - Working memory: each retrieval run records a bounded activated subgraph and structured context pack.
 
 Whole documents stay in source snapshots. A semantic node should normally be one reusable statement.
 
-An `ARTIFACT` node is a compact identity anchor, not a copy of a document. The current auto-activation policy normalizes extracted nodes, including approved-revision source anchors, to `CLAIM / ACTIVE` and links reusable ideas to the anchor with `EXPRESSED_IN`; the full approved content remains only in the immutable source snapshot.
+Approved and published sources receive a compact `FACT` identity anchor linked with `EXPRESSED_IN`; the full content remains only in the immutable source snapshot.
 
 ## Explicit vocabulary
 
-Node types: `EPISODE`, `SIGNAL`, `OBSERVATION`, `CLAIM`, `CONCEPT`, `ENTITY`, `EXPERIENCE`, `EVIDENCE`, `CONSTRAINT`, `COUNTERARGUMENT`, `POSITION`, `AUDIENCE_INSIGHT`, `VOICE_PATTERN`, and `ARTIFACT`.
+Each node has exactly one operation and one type from that operation:
+
+| Operation | Types                                             | Purpose                                 |
+| --------- | ------------------------------------------------- | --------------------------------------- |
+| INSERT    | FACT, OBSERVATION, PRINCIPLE, DECISION, PROCEDURE | Add new knowledge                       |
+| CHALLENGE | CLAIM, EVIDENCE, HYPOTHESIS                       | Retrieve and test existing knowledge    |
+| EXTEND    | ARGUMENT, INSIGHT                                 | Retrieve and develop existing knowledge |
+
+Application validation and a PostgreSQL check constraint reject every cross-operation type mismatch.
 
 Directed edge types: `DERIVED_FROM`, `SUPPORTS`, `CONTRADICTS`, `REFINES`, `SUPERSEDES`, `CAUSES`, `APPLIES_TO`, `EXAMPLE_OF`, `ABOUT`, `USED_IN`, `EXPRESSED_IN`, and `RELATED_TO`.
 
-Application validation and PostgreSQL enums both reject arbitrary values.
+Application validation and PostgreSQL enums also reject arbitrary values.
 
 ## Independent trust dimensions
 
@@ -28,7 +36,7 @@ Application validation and PostgreSQL enums both reject arbitrary values.
 | Lifecycle    | PROPOSED, ACTIVE, REJECTED, ARCHIVED                              | Editorial/operational state   |
 | Sensitivity  | PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED                        | Retrieval ceiling             |
 
-New operator and extracted knowledge currently enters memory as `CLAIM / ACTIVE`; no human-review Inbox is used. Activation copies verification unchanged. A source may carry an explicit human verification assertion, including actor and reason. Without one, approved copy remains `APPROVED_COPY / UNVERIFIED`.
+All three operations create `ACTIVE` knowledge immediately; no human-review Inbox is used. Activation copies verification unchanged. INSERT classification can inherit an explicit source verification assertion. Model-generated CHALLENGE and EXTEND results are always `AI_DERIVED / UNVERIFIED` and store the target, retrieval run, model, assessment, balanced analysis, uncertainty, and evidence gaps.
 
 ## Tables and invariants
 
@@ -49,7 +57,7 @@ Confidence, strength, importance, and salience are database-constrained to `[0,1
 
 Every node has `current_version`. PATCH requires `expected_version`; stale writes return a conflict. Every accepted change writes the new snapshot to the version table. Source snapshots cannot update or delete because of a database trigger.
 
-Corrections should create a new version for wording/trust metadata, a distinct contradicting node when both claims must remain visible, or an explicit superseding node when replacement is intended. Archive changes retrieval eligibility without deleting audit history.
+Corrections should create a new version for wording/trust metadata, a distinct CHALLENGE result when disagreement must remain visible, or an explicit superseding node when replacement is intended. Archive changes retrieval eligibility without deleting audit history.
 
 ## Deduplication and merge
 

@@ -1,5 +1,9 @@
 import type { KnowledgeSource } from "@/src/domain/models";
-import type { ExtractionOutput } from "@/src/domain/schemas";
+import type {
+  ExtractionOutput,
+  GeneratedOperationResult,
+  KnowledgeOperationRequest,
+} from "@/src/domain/schemas";
 
 export interface KnowledgeExtractionResult {
   output: ExtractionOutput;
@@ -10,6 +14,15 @@ export interface KnowledgeExtractionGateway {
   readonly name: string;
   readonly model: string;
   extract(source: KnowledgeSource): Promise<KnowledgeExtractionResult>;
+}
+
+export interface KnowledgeOperationGateway {
+  readonly name: string;
+  readonly model: string;
+  generate(
+    source: KnowledgeSource,
+    request: KnowledgeOperationRequest,
+  ): Promise<{ output: GeneratedOperationResult; model: string }>;
 }
 
 export interface EmbeddingGateway {

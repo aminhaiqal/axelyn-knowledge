@@ -1,13 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { query } from "@/src/db/pool";
-import type { NodeCreateInput, RetrievalInput, SourceIngestionInput } from "@/src/domain/schemas";
+import {
+  NodeCreateSchema,
+  type NodeCreateInput,
+  type RetrievalInput,
+  type SourceIngestionInput,
+} from "@/src/domain/schemas";
 import { NodeService } from "@/src/services/node-service";
+import { KnowledgeOperationService } from "@/src/services/knowledge-operation-service";
 import { RetrievalService } from "@/src/services/retrieval-service";
 import { SourceService } from "@/src/services/source-service";
 import {
   FailingEmbeddingGateway,
   FakeEmbeddingGateway,
   FakeExtractionGateway,
+  FakeOperationGateway,
 } from "@/tests/helpers/fakes";
 
 const actor = "test:operator";
@@ -41,9 +48,17 @@ async function createNode(
   input: Partial<NodeCreateInput> & Pick<NodeCreateInput, "title" | "canonical_statement" | "type">,
   service = nodeService,
 ) {
+  const operation =
+    input.operation ??
+    (["CLAIM", "EVIDENCE", "HYPOTHESIS"].includes(input.type)
+      ? "CHALLENGE"
+      : ["ARGUMENT", "INSIGHT"].includes(input.type)
+        ? "EXTEND"
+        : "INSERT");
   return service.create(
     {
       workspace_id: workspace,
+      operation,
       type: input.type,
       title: input.title,
       canonical_statement: input.canonical_statement,
@@ -154,7 +169,7 @@ describe("source ingestion and extraction", () => {
     expect(results.map((result) => result.replayed).sort()).toEqual([false, true]);
   });
 
-  it("auto-activates a valid extraction as claims while keeping approved copy unverified", async () => {
+  it("auto-activates valid INSERT classifications while keeping approved copy unverified", async () => {
     const source = await ingest(
       "axelyn",
       "approved-proof",
@@ -166,7 +181,7 @@ describe("source ingestion and extraction", () => {
         nodes: [
           {
             temp_id: "position",
-            type: "POSITION",
+            type: "PRINCIPLE",
             title: "Show evidence paths",
             canonical_statement: "Explanations should show the evidence path.",
             metadata: {},
@@ -181,7 +196,7 @@ describe("source ingestion and extraction", () => {
           },
           {
             temp_id: "voice",
-            type: "VOICE_PATTERN",
+            type: "PROCEDURE",
             title: "Name uncertainty",
             canonical_statement: "Name uncertainty directly.",
             metadata: {},
@@ -213,12 +228,14 @@ describe("source ingestion and extraction", () => {
     const result = await extraction.requestExtraction("axelyn", source.id, actor);
     expect(result.status).toBe("SUCCEEDED");
     const created = await query(
-      `SELECT type, origin, verification, lifecycle_status FROM knowledge_nodes ORDER BY title`,
+      `SELECT operation, type, origin, verification, lifecycle_status
+       FROM knowledge_nodes ORDER BY title`,
     );
     expect(created.rows).toHaveLength(3);
     expect(created.rows.every((row) => row.origin === "APPROVED_COPY")).toBe(true);
     expect(created.rows.every((row) => row.verification === "UNVERIFIED")).toBe(true);
-    expect(created.rows.every((row) => row.type === "CLAIM")).toBe(true);
+    expect(created.rows.map((row) => row.type).sort()).toEqual(["FACT", "PRINCIPLE", "PROCEDURE"]);
+    expect(created.rows.every((row) => row.operation === "INSERT")).toBe(true);
     expect(created.rows.every((row) => row.lifecycle_status === "ACTIVE")).toBe(true);
     expect(
       (await query(`SELECT count(*)::int AS count FROM knowledge_node_sources`)).rows[0].count,
@@ -249,7 +266,7 @@ describe("source ingestion and extraction", () => {
         nodes: [
           {
             temp_id: "n1",
-            type: "CLAIM",
+            type: "FACT",
             title: "Invented",
             canonical_statement: "An invented claim.",
             metadata: {},
@@ -299,7 +316,7 @@ describe("source ingestion and extraction", () => {
         nodes: [
           {
             temp_id: "evidence",
-            type: "EVIDENCE",
+            type: "FACT",
             title: "Evidence paths help reviewers",
             canonical_statement: "Evidence paths can help reviewers.",
             metadata: {},
@@ -329,6 +346,7 @@ describe("source ingestion and extraction", () => {
       nodeService.create(
         {
           workspace_id: "axelyn",
+          operation: "CHALLENGE",
           type: "EVIDENCE",
           title: "Invalid provenance",
           canonical_statement: "A claim with fabricated provenance.",
@@ -348,13 +366,114 @@ describe("source ingestion and extraction", () => {
   });
 });
 
+describe("exclusive grounded knowledge operations", () => {
+  it.each([
+    ["CHALLENGE", "CLAIM", "INCONCLUSIVE", "RELATED_TO"],
+    ["EXTEND", "INSIGHT", "EXTENDED", "REFINES"],
+  ] as const)(
+    "creates one %s result without mutating its target",
+    async (operation, type, assessment, edgeType) => {
+      const source = await ingest(
+        "axelyn",
+        `operation-target-${operation.toLowerCase()}`,
+        "Traceable decisions help reviewers reproduce outcomes.",
+      );
+      const target = await createNode("axelyn", source, {
+        type: "FACT",
+        title: "Traceability aids reproduction",
+        canonical_statement: source.content,
+      });
+      const service = new KnowledgeOperationService(
+        new FakeOperationGateway((_grounding, request) => ({
+          operation: request.operation,
+          type,
+          title: `${operation} result`,
+          canonical_statement:
+            operation === "CHALLENGE"
+              ? "The supplied record does not establish how broadly traceability improves reproduction."
+              : "Traceability can also shorten the handoff between the original reviewer and a later auditor.",
+          assessment,
+          confidence: 0.64,
+          supporting_analysis: "The target states a concrete benefit for reviewers.",
+          opposing_analysis: "The record provides no comparison group or measured effect size.",
+          uncertainty: "The effect outside the supplied setting is unknown.",
+          evidence_gaps: ["Comparative outcome data"],
+          source_excerpt: source.content,
+          rationale: "The result is bounded to the retrieved record.",
+        })),
+        new RetrievalService(null),
+        sourceService,
+        nodeService,
+      );
+
+      const result = await service.run(
+        {
+          workspace_id: "axelyn",
+          target_node_id: target.id,
+          operation,
+          instruction: operation === "CHALLENGE" ? "Test this fairly." : "Develop an implication.",
+          maximum_sensitivity: "INTERNAL",
+        },
+        actor,
+      );
+      const unchangedTarget = await nodeService.get("axelyn", target.id);
+
+      expect(result.node).toMatchObject({ operation, type, verification: "UNVERIFIED" });
+      expect(result.edge).toMatchObject({
+        type: edgeType,
+        source_node_id: result.node.id,
+        target_node_id: target.id,
+      });
+      expect(unchangedTarget.current_version).toBe(target.current_version);
+      expect(unchangedTarget.canonical_statement).toBe(target.canonical_statement);
+      expect(result.node.metadata.operation_result).toMatchObject({
+        target_node_id: target.id,
+        assessment,
+        model: "fixture-operation-model",
+      });
+    },
+  );
+
+  it("rejects an operation/type mismatch before it reaches PostgreSQL", () => {
+    expect(() =>
+      NodeCreateSchema.parse({
+        workspace_id: "axelyn",
+        operation: "INSERT",
+        type: "CLAIM",
+        title: "Invalid boundary",
+        canonical_statement: "This should not be accepted.",
+        metadata: {},
+        origin: "OPERATOR",
+        source_links: [],
+      }),
+    ).toThrow(/not valid for the INSERT operation/);
+  });
+
+  it("enforces the same operation/type boundary in PostgreSQL", async () => {
+    await query(`INSERT INTO workspaces (id, name) VALUES ('axelyn', 'Axelyn')`);
+    await expect(
+      query(
+        `INSERT INTO knowledge_nodes (
+          workspace_id, operation, type, title, canonical_statement, statement_hash,
+          metadata, origin, verification, lifecycle_status, sensitivity,
+          confidence, importance, salience, created_by, updated_by
+        ) VALUES (
+          'axelyn', 'INSERT', 'CLAIM', 'Invalid boundary', 'This must fail.',
+          repeat('b', 64), '{}'::jsonb, 'OPERATOR', 'UNVERIFIED', 'ACTIVE',
+          'INTERNAL', 0.5, 0.5, 0.5, 'test', 'test'
+        )`,
+      ),
+    ).rejects.toMatchObject({ code: "23514" });
+  });
+});
+
 describe("trust, revisions, isolation, and consolidation", () => {
   it("approval activates editorial usefulness without changing verification and records versions", async () => {
     const source = await ingest("axelyn", "approved-node", "A useful but unverified position.", {
       source_type: "approved_revision",
     });
     const node = await createNode("axelyn", source, {
-      type: "POSITION",
+      type: "PRINCIPLE",
       title: "Useful position",
       canonical_statement: "A useful but unverified position.",
       origin: "APPROVED_COPY",
@@ -394,12 +513,12 @@ describe("trust, revisions, isolation, and consolidation", () => {
   it("archives connected active edges and records their revisions with the endpoint", async () => {
     const source = await ingest("axelyn", "edge-archive", "Two related atomic memories.");
     const first = await createNode("axelyn", source, {
-      type: "CONCEPT",
+      type: "PRINCIPLE",
       title: "First concept",
       canonical_statement: "The first concept is active.",
     });
     const second = await createNode("axelyn", source, {
-      type: "CONCEPT",
+      type: "PRINCIPLE",
       title: "Second concept",
       canonical_statement: "The second concept is active.",
     });
@@ -438,6 +557,7 @@ describe("trust, revisions, isolation, and consolidation", () => {
     const node = await nodeService.create(
       {
         workspace_id: "axelyn",
+        operation: "INSERT",
         type: "OBSERVATION",
         title: "Manual observation",
         canonical_statement: "An operator recorded an observation without source evidence.",
@@ -582,12 +702,12 @@ describe("trust, revisions, isolation, and consolidation", () => {
     const firstSource = await ingest("axelyn", "merge-first", "Evidence path wording one.");
     const secondSource = await ingest("axelyn", "merge-second", "Evidence path wording two.");
     const sourceNode = await createNode("axelyn", firstSource, {
-      type: "CONCEPT",
+      type: "PRINCIPLE",
       title: "Evidence path",
       canonical_statement: "An explanation should expose its evidence path.",
     });
     const targetNode = await createNode("axelyn", secondSource, {
-      type: "CONCEPT",
+      type: "PRINCIPLE",
       title: "Traceable evidence path",
       canonical_statement: "Explanations should expose their evidence paths.",
     });
@@ -705,7 +825,7 @@ async function buildRetrievalFixture() {
   );
 
   const signal = await createNode("axelyn", signalSource, {
-    type: "SIGNAL",
+    type: "OBSERVATION",
     title: "Reviewable explainability signal",
     canonical_statement: signalSource.content,
     origin: "USER_SIGNAL",
@@ -721,7 +841,7 @@ async function buildRetrievalFixture() {
     importance: 0.88,
   });
   const position = await createNode("axelyn", positionSource, {
-    type: "POSITION",
+    type: "PRINCIPLE",
     title: "Accountable decision chain",
     canonical_statement: positionSource.content,
     origin: "APPROVED_COPY",
@@ -747,7 +867,7 @@ async function buildRetrievalFixture() {
     importance: 0.6,
   });
   const counter = await createNode("axelyn", counterSource, {
-    type: "COUNTERARGUMENT",
+    type: "ARGUMENT",
     title: "Explanation overload",
     canonical_statement: counterSource.content,
     verification: "SOURCE_SUPPORTED",
@@ -755,7 +875,7 @@ async function buildRetrievalFixture() {
     salience: 0.95,
   });
   const correction = await createNode("axelyn", correctionSource, {
-    type: "CONSTRAINT",
+    type: "PRINCIPLE",
     title: "Explanation is not proof",
     canonical_statement: correctionSource.content,
     origin: "OPERATOR",
@@ -913,7 +1033,7 @@ describe("bounded associative retrieval", () => {
     expect(first.items.some((item) => item.contradicting_nodes.length > 0)).toBe(true);
     expect(first.items.every((item) => item.supporting_provenance.length > 0)).toBe(true);
     expect(first.items.some((item) => item.canonical_statement.includes("Restricted"))).toBe(false);
-    expect(first.context_pack.sections.user_supplied_observations.length).toBeGreaterThan(0);
+    expect(first.context_pack.sections.facts_and_observations.length).toBeGreaterThan(0);
     expect(first.items.map((item) => [item.node_id, item.final_score])).toEqual(
       second.items.map((item) => [item.node_id, item.final_score]),
     );

@@ -57,13 +57,12 @@ interface Candidate {
 const round = (value: number) => Number(value.toFixed(8));
 
 const CONTEXT_SECTION_NAMES = [
-  "verified_supportable_knowledge",
-  "user_supplied_observations",
-  "unverified_generated_insights",
-  "constraints_and_prohibited_claims",
+  "facts_and_observations",
+  "principles_decisions_and_procedures",
+  "challenge_results",
+  "hypotheses_and_uncertainty",
+  "arguments_and_insights",
   "contradictions_and_caveats",
-  "prior_approved_positioning",
-  "voice_patterns",
 ] as const;
 
 const CONTEXT_WARNINGS = [
@@ -131,22 +130,19 @@ function compactProvenance(reference: ProvenanceReference) {
 }
 
 function contextSection(node: KnowledgeNode): ContextSectionName {
-  if (node.type === "CONSTRAINT") return "constraints_and_prohibited_claims";
-  if (node.type === "COUNTERARGUMENT" || node.verification === "DISPUTED")
-    return "contradictions_and_caveats";
-  if (node.type === "VOICE_PATTERN") return "voice_patterns";
-  if (node.origin === "APPROVED_COPY" || node.type === "POSITION")
-    return "prior_approved_positioning";
-  if (node.origin === "USER_SIGNAL" || node.type === "OBSERVATION")
-    return "user_supplied_observations";
-  if (["HUMAN_CONFIRMED", "SOURCE_SUPPORTED"].includes(node.verification))
-    return "verified_supportable_knowledge";
-  return "unverified_generated_insights";
+  if (node.verification === "DISPUTED") return "contradictions_and_caveats";
+  if (["FACT", "OBSERVATION"].includes(node.type)) return "facts_and_observations";
+  if (["PRINCIPLE", "DECISION", "PROCEDURE"].includes(node.type))
+    return "principles_decisions_and_procedures";
+  if (["CLAIM", "EVIDENCE"].includes(node.type)) return "challenge_results";
+  if (node.type === "HYPOTHESIS") return "hypotheses_and_uncertainty";
+  return "arguments_and_insights";
 }
 
 function contextEntry(candidate: Candidate) {
   return {
     node_id: candidate.node.id,
+    operation: candidate.node.operation,
     type: candidate.node.type,
     statement: candidate.node.canonical_statement,
     trust: {
@@ -435,8 +431,8 @@ export class RetrievalService {
       if (usedTokens + candidate.estimated_tokens > input.token_budget) continue;
       const isProtected =
         candidate === forcedContradiction ||
-        candidate.node.type === "CONSTRAINT" ||
-        candidate.node.type === "COUNTERARGUMENT";
+        candidate.node.type === "PRINCIPLE" ||
+        candidate.node.type === "ARGUMENT";
       if (!isProtected && (seedCounts.get(candidate.seed_node_id) ?? 0) >= 3) continue;
       if (!isProtected && (typeCounts.get(candidate.node.type) ?? 0) >= 3) continue;
       selected.push(candidate);
@@ -471,6 +467,7 @@ export class RetrievalService {
     );
     const responseItems = selected.map((candidate) => ({
       node_id: candidate.node.id,
+      operation: candidate.node.operation,
       type: candidate.node.type,
       canonical_statement: candidate.node.canonical_statement,
       trust: {

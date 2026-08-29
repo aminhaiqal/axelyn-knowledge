@@ -12,6 +12,7 @@ import { logger } from "@/src/lib/logger";
 interface ListOptions {
   workspace_id: string;
   query?: string;
+  operation?: string;
   type?: string;
   origin?: string;
   verification?: string;
@@ -136,14 +137,15 @@ export class NodeService {
       };
       const inserted = await client.query(
         `INSERT INTO knowledge_nodes (
-          workspace_id, type, title, canonical_statement, statement_hash, metadata,
+          workspace_id, operation, type, title, canonical_statement, statement_hash, metadata,
           origin, verification, lifecycle_status, sensitivity, confidence, importance,
           salience, embedding, created_by, updated_by
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-          $14::vector, $15, $15)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,
+          $15::vector, $16, $16)
         RETURNING *`,
         [
           input.workspace_id,
+          input.operation,
           input.type,
           input.title,
           input.canonical_statement,
@@ -237,6 +239,7 @@ export class NodeService {
       values.push(value);
       clauses.push(sql.replace("?", `$${values.length}`));
     };
+    if (options.operation) add("operation = ?::knowledge_operation", options.operation);
     if (options.query) add("search_document @@ websearch_to_tsquery('english', ?)", options.query);
     if (options.type) add("type = ?::knowledge_node_type", options.type);
     if (options.origin) add("origin = ?::knowledge_origin", options.origin);
@@ -734,12 +737,14 @@ export class NodeService {
           count(*)::int AS total,
           count(*) FILTER (WHERE lifecycle_status = 'ACTIVE')::int AS active,
           count(*) FILTER (
-            WHERE type = 'CLAIM' AND lifecycle_status = 'ACTIVE'
-          )::int AS active_claims,
+            WHERE operation = 'INSERT' AND lifecycle_status = 'ACTIVE'
+          )::int AS inserted_knowledge,
           count(*) FILTER (
-            WHERE type = 'CLAIM' AND lifecycle_status = 'ACTIVE'
-              AND verification = 'UNVERIFIED'
-          )::int AS unverified_claims,
+            WHERE operation = 'CHALLENGE' AND lifecycle_status = 'ACTIVE'
+          )::int AS challenges,
+          count(*) FILTER (
+            WHERE operation = 'EXTEND' AND lifecycle_status = 'ACTIVE'
+          )::int AS extensions,
           jsonb_object_agg(type, type_count) AS by_type,
           jsonb_object_agg(verification, verification_count) AS by_verification
          FROM (
@@ -770,9 +775,9 @@ export class NodeService {
         [workspaceId],
       ),
       query(
-        `SELECT id, type, title, origin, verification, created_at
+        `SELECT id, operation, type, title, origin, verification, created_at
          FROM knowledge_nodes
-         WHERE workspace_id = $1 AND type = 'CLAIM' AND lifecycle_status = 'ACTIVE'
+         WHERE workspace_id = $1 AND lifecycle_status = 'ACTIVE'
          ORDER BY created_at DESC LIMIT 8`,
         [workspaceId],
       ),
@@ -781,8 +786,9 @@ export class NodeService {
       totals: totals.rows[0] ?? {
         total: 0,
         active: 0,
-        active_claims: 0,
-        unverified_claims: 0,
+        inserted_knowledge: 0,
+        challenges: 0,
+        extensions: 0,
         by_type: {},
         by_verification: {},
       },

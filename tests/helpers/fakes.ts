@@ -1,10 +1,15 @@
 import { EMBEDDING_DIMENSION } from "@/src/config";
 import type { KnowledgeSource } from "@/src/domain/models";
-import type { ExtractionOutput } from "@/src/domain/schemas";
+import type {
+  ExtractionOutput,
+  GeneratedOperationResult,
+  KnowledgeOperationRequest,
+} from "@/src/domain/schemas";
 import type {
   EmbeddingGateway,
   KnowledgeExtractionGateway,
   KnowledgeExtractionResult,
+  KnowledgeOperationGateway,
 } from "@/src/gateways/types";
 
 export class FakeExtractionGateway implements KnowledgeExtractionGateway {
@@ -18,6 +23,24 @@ export class FakeExtractionGateway implements KnowledgeExtractionGateway {
   async extract(source: KnowledgeSource): Promise<KnowledgeExtractionResult> {
     return {
       output: typeof this.output === "function" ? this.output(source) : this.output,
+      model: this.model,
+    };
+  }
+}
+
+export class FakeOperationGateway implements KnowledgeOperationGateway {
+  readonly name = "fake-operation";
+  readonly model = "fixture-operation-model";
+
+  constructor(
+    private readonly output:
+      | GeneratedOperationResult
+      | ((source: KnowledgeSource, request: KnowledgeOperationRequest) => GeneratedOperationResult),
+  ) {}
+
+  async generate(source: KnowledgeSource, request: KnowledgeOperationRequest) {
+    return {
+      output: typeof this.output === "function" ? this.output(source, request) : this.output,
       model: this.model,
     };
   }

@@ -1,5 +1,6 @@
 import type {
   EdgeType,
+  KnowledgeOperation,
   LifecycleStatus,
   NodeType,
   Origin,
@@ -30,6 +31,7 @@ export interface KnowledgeSource {
 export interface KnowledgeNode {
   id: string;
   workspace_id: string;
+  operation: KnowledgeOperation;
   type: NodeType;
   title: string;
   canonical_statement: string;
