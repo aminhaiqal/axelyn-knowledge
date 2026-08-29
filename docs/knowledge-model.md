@@ -9,7 +9,7 @@
 
 Whole documents stay in source snapshots. A semantic node should normally be one reusable statement.
 
-An `ARTIFACT` node is a compact identity anchor, not a copy of a document. Approved-revision extraction creates or reuses one proposal and links every reusable extracted idea to it with `EXPRESSED_IN`; the full approved content remains only in the immutable source snapshot.
+An `ARTIFACT` node is a compact identity anchor, not a copy of a document. The current auto-activation policy normalizes extracted nodes, including approved-revision source anchors, to `CLAIM / ACTIVE` and links reusable ideas to the anchor with `EXPRESSED_IN`; the full approved content remains only in the immutable source snapshot.
 
 ## Explicit vocabulary
 
@@ -28,7 +28,7 @@ Application validation and PostgreSQL enums both reject arbitrary values.
 | Lifecycle    | PROPOSED, ACTIVE, REJECTED, ARCHIVED                              | Editorial/operational state   |
 | Sensitivity  | PUBLIC, INTERNAL, CONFIDENTIAL, RESTRICTED                        | Retrieval ceiling             |
 
-`approve` changes lifecycle to `ACTIVE`; it copies verification unchanged. A source may carry an explicit human verification assertion, including actor and reason. Without one, approved copy remains `APPROVED_COPY / UNVERIFIED`.
+New operator and extracted knowledge currently enters memory as `CLAIM / ACTIVE`; no human-review Inbox is used. Activation copies verification unchanged. A source may carry an explicit human verification assertion, including actor and reason. Without one, approved copy remains `APPROVED_COPY / UNVERIFIED`.
 
 ## Tables and invariants
 

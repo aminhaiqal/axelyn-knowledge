@@ -143,8 +143,8 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
                   <p className="text-sm leading-6 text-slate-600">{state.message}</p>
                   {state.extractionStatus === "SUCCEEDED" ? (
                     <div className="flex flex-wrap gap-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
-                      <span>{state.proposedNodes} knowledge proposals</span>
-                      <span>{state.proposedEdges} relationship proposals</span>
+                      <span>{state.createdNodes} active claims</span>
+                      <span>{state.createdEdges} active relationships</span>
                     </div>
                   ) : (
                     <p className="text-sm leading-6 text-[#3557ff]">{state.extractionMessage}</p>
@@ -154,11 +154,11 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
                   className={cn(buttonVariants({ size: "lg", variant: "outline" }), "bg-white")}
                   href={
                     state.extractionStatus === "SUCCEEDED"
-                      ? `/inbox?workspace=${workspace}`
+                      ? `/knowledge?workspace=${workspace}`
                       : `/?workspace=${workspace}`
                   }
                 >
-                  {state.extractionStatus === "SUCCEEDED" ? "Review proposals" : "View extraction"}
+                  {state.extractionStatus === "SUCCEEDED" ? "View knowledge" : "View extraction"}
                 </Link>
               </div>
             ) : null}
@@ -248,8 +248,7 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
 
             <div className="flex flex-col gap-4 border-t border-[#dce3ed] pt-5 md:flex-row md:items-center md:justify-between">
               <p className="max-w-2xl text-sm leading-7 text-slate-600">
-                This creates review proposals. It does not publish knowledge or mark facts as
-                verified.
+                This activates reusable claims in the library. It does not mark facts as verified.
               </p>
               <Button className="px-5" disabled={pending} size="lg" type="submit">
                 {pending ? "Reading source…" : selected.actionLabel}
@@ -266,17 +265,17 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
               Pipeline
             </p>
             <h2 className="font-serif text-3xl leading-none tracking-tight">
-              Four bounded passes, one editorial decision.
+              Bounded extraction, immediate working memory.
             </h2>
           </div>
           <span className="border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-            Review
+            Automatic
           </span>
         </div>
 
         <p className="mt-4 max-w-sm text-sm leading-7 text-slate-400">
-          The pipeline preserves the source, extracts bounded ideas, and stops before anything is
-          published.
+          The pipeline preserves the source, extracts bounded ideas, and activates them as
+          unverified claims.
         </p>
 
         <dl className="mt-8 space-y-4">
@@ -320,8 +319,8 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
         <div className="mt-8 space-y-5">
           {[
             ["01", "Preserve the source", "Immutable text and provenance"],
-            ["02", "Extract atomic ideas", "Claims, evidence, positions, and links"],
-            ["03", "Review before activation", "You decide what enters memory"],
+            ["02", "Extract atomic ideas", "Grounded claims and typed relationships"],
+            ["03", "Activate the claims", "Available immediately, still unverified"],
           ].map(([step, title, description], index) => (
             <div className="relative flex gap-4 pl-1" key={step}>
               {index < 2 ? (

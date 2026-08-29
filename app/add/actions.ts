@@ -28,16 +28,16 @@ export interface KnowledgeIntakeState {
   sourceLabel?: string;
   extractionStatus?: "PENDING" | "RUNNING" | "SUCCEEDED" | "FAILED";
   extractionMessage?: string;
-  proposedNodes?: number;
-  proposedEdges?: number;
+  createdNodes?: number;
+  createdEdges?: number;
 }
 
 function zodMessage(error: z.ZodError) {
   return error.issues[0]?.message ?? "Check the source details and try again.";
 }
 
-function proposalCount(proposals: Record<string, unknown> | null, key: string) {
-  const value = proposals?.[key];
+function createdCount(result: Record<string, unknown> | null, key: string) {
+  const value = result?.[key];
   return Array.isArray(value) ? value.length : 0;
 }
 
@@ -97,21 +97,20 @@ export async function addKnowledgeSourceAction(
     const extraction = result.extraction;
 
     revalidatePath("/");
-    revalidatePath("/inbox");
     revalidatePath("/knowledge");
 
     return {
       status: "success",
       message:
         extraction?.status === "SUCCEEDED"
-          ? "Source saved and knowledge proposals are ready for review."
-          : "Source saved. Automatic extraction needs attention before proposals can be reviewed.",
+          ? "Source saved and extracted claims are active in the library."
+          : "Source saved. Automatic extraction needs attention before claims can be activated.",
       sourceId: result.source.id,
       sourceLabel,
       extractionStatus: extraction?.status,
       extractionMessage: extraction?.error_message ?? undefined,
-      proposedNodes: proposalCount(extraction?.proposals ?? null, "created_node_ids"),
-      proposedEdges: proposalCount(extraction?.proposals ?? null, "created_edge_ids"),
+      createdNodes: createdCount(extraction?.proposals ?? null, "created_node_ids"),
+      createdEdges: createdCount(extraction?.proposals ?? null, "created_edge_ids"),
     };
   } catch (error) {
     if (error instanceof z.ZodError) {

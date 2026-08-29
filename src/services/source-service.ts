@@ -79,6 +79,13 @@ export function applyOperatorIntakeSensitivity(
   });
 }
 
+export function applyAutomaticClaimPolicy(output: ExtractionOutput): ExtractionOutput {
+  return ExtractionOutputSchema.parse({
+    ...output,
+    nodes: output.nodes.map((node) => ({ ...node, type: "CLAIM" })),
+  });
+}
+
 export function ensureApprovedArtifact(
   source: KnowledgeSource,
   output: ExtractionOutput,
@@ -98,6 +105,7 @@ export function ensureApprovedArtifact(
       title: `Approved artifact · ${source.external_id}`.slice(0, 240),
       canonical_statement: `Approved artifact ${source.source_system}:${source.external_id}:v${source.source_version}.`,
       metadata: {
+        knowledge_role: "SOURCE_ARTIFACT_ANCHOR",
         source_system: source.source_system,
         source_type: source.source_type,
         external_id: source.external_id,
@@ -352,9 +360,11 @@ export class SourceService {
 
     try {
       const extracted = await extractionGateway.extract(source);
-      const proposals = applyOperatorIntakeSensitivity(
-        source,
-        ensureApprovedArtifact(source, ExtractionOutputSchema.parse(extracted.output)),
+      const proposals = applyAutomaticClaimPolicy(
+        applyOperatorIntakeSensitivity(
+          source,
+          ensureApprovedArtifact(source, ExtractionOutputSchema.parse(extracted.output)),
+        ),
       );
       validateGroundedExtraction(source, proposals);
       await query(`UPDATE knowledge_extractions SET gateway = $2, model = $3 WHERE id = $1`, [
@@ -486,7 +496,7 @@ export class SourceService {
             workspace_id, type, title, canonical_statement, statement_hash, metadata,
             origin, verification, lifecycle_status, sensitivity, confidence, importance,
             salience, embedding, created_by, updated_by
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'PROPOSED', $9, $10, $11,
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'ACTIVE', $9, $10, $11,
             $12, $13::vector, $14, $14)
           RETURNING id`,
           [
@@ -520,7 +530,7 @@ export class SourceService {
           source.workspace_id,
           id,
           actor,
-          "Extracted from immutable source",
+          "Automatically activated from immutable source as CLAIM",
         );
       }
 
@@ -533,7 +543,7 @@ export class SourceService {
           `INSERT INTO knowledge_edges (
             workspace_id, source_node_id, target_node_id, type, strength, confidence,
             lifecycle_status, provenance, created_by, updated_by
-          ) VALUES ($1, $2, $3, $4, $5, $6, 'PROPOSED', $7, $8, $8)
+          ) VALUES ($1, $2, $3, $4, $5, $6, 'ACTIVE', $7, $8, $8)
           RETURNING id`,
           [
             source.workspace_id,
@@ -559,7 +569,7 @@ export class SourceService {
           source.workspace_id,
           edgeId,
           actor,
-          "Extracted from immutable source",
+          "Automatically activated with extracted claims",
         );
       }
 

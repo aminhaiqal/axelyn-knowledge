@@ -6,7 +6,6 @@ import { useState, type ReactNode } from "react";
 import {
   BrainCircuit,
   GitBranchPlus,
-  Inbox,
   LibraryBig,
   Menu,
   Orbit,
@@ -38,12 +37,6 @@ const navigation = [
     label: "Add knowledge",
     detail: "Source intake",
     icon: GitBranchPlus,
-  },
-  {
-    href: "/inbox",
-    label: "Inbox",
-    detail: "Human review queue",
-    icon: Inbox,
   },
   {
     href: "/knowledge",
@@ -163,7 +156,7 @@ export function AdminShell({
           </Link>
 
           <p className="mt-5 max-w-xs text-sm leading-6 text-slate-400">
-            Editorial memory workspace for capture, review, retrieval, and structured approval.
+            Editorial memory workspace for capture, retrieval, and structured knowledge.
           </p>
 
           <Link
@@ -201,7 +194,7 @@ export function AdminShell({
           </div>
 
           <p className="mt-4 text-xs leading-5 text-slate-500">
-            Approval activates memory. Verification stays explicit and separate.
+            New knowledge activates as a claim. Verification stays explicit and separate.
           </p>
         </div>
       </aside>

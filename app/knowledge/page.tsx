@@ -228,22 +228,13 @@ export default async function KnowledgeLibrary({
         </summary>
         <div className="border-t border-[#dce3ed] px-6 py-6">
           <SectionHeader
-            eyebrow="Operator-authored proposal"
-            title="Create one atomic idea"
-            description="This enters the inbox as OPERATOR / PROPOSED. It is not verified by creation."
+            eyebrow="Operator-authored claim"
+            title="Create one active claim"
+            description="This is saved directly as OPERATOR / ACTIVE. Creation does not make it verified."
           />
 
           <form action={createNodeAction} className="mt-6 grid gap-4 md:grid-cols-2">
             <input type="hidden" name="workspace_id" value={workspace} />
-
-            <label className="block space-y-2 text-sm font-medium text-slate-800">
-              <span>Type</span>
-              <NativeSelect name="type" defaultValue="OBSERVATION">
-                {NODE_TYPES.map((value) => (
-                  <option key={value}>{value}</option>
-                ))}
-              </NativeSelect>
-            </label>
 
             <label className="block space-y-2 text-sm font-medium text-slate-800">
               <span>Verification</span>
@@ -294,7 +285,7 @@ export default async function KnowledgeLibrary({
 
             <div className="md:col-span-2">
               <Button className="px-5" size="lg" type="submit">
-                Create proposal
+                Create active claim
               </Button>
             </div>
           </form>

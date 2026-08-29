@@ -728,12 +728,18 @@ export class NodeService {
   }
 
   async dashboard(workspaceId: string) {
-    const [totals, recentSources, failures, awaiting] = await Promise.all([
+    const [totals, recentSources, failures, recentKnowledge] = await Promise.all([
       query(
         `SELECT
           count(*)::int AS total,
-          count(*) FILTER (WHERE lifecycle_status = 'PROPOSED')::int AS proposed,
           count(*) FILTER (WHERE lifecycle_status = 'ACTIVE')::int AS active,
+          count(*) FILTER (
+            WHERE type = 'CLAIM' AND lifecycle_status = 'ACTIVE'
+          )::int AS active_claims,
+          count(*) FILTER (
+            WHERE type = 'CLAIM' AND lifecycle_status = 'ACTIVE'
+              AND verification = 'UNVERIFIED'
+          )::int AS unverified_claims,
           jsonb_object_agg(type, type_count) AS by_type,
           jsonb_object_agg(verification, verification_count) AS by_verification
          FROM (
@@ -765,22 +771,24 @@ export class NodeService {
       ),
       query(
         `SELECT id, type, title, origin, verification, created_at
-         FROM knowledge_nodes WHERE workspace_id = $1 AND lifecycle_status = 'PROPOSED'
-         ORDER BY created_at ASC LIMIT 8`,
+         FROM knowledge_nodes
+         WHERE workspace_id = $1 AND type = 'CLAIM' AND lifecycle_status = 'ACTIVE'
+         ORDER BY created_at DESC LIMIT 8`,
         [workspaceId],
       ),
     ]);
     return {
       totals: totals.rows[0] ?? {
         total: 0,
-        proposed: 0,
         active: 0,
+        active_claims: 0,
+        unverified_claims: 0,
         by_type: {},
         by_verification: {},
       },
       recent_sources: recentSources.rows,
       extraction_failures: failures.rows,
-      awaiting_review: awaiting.rows,
+      recent_knowledge: recentKnowledge.rows,
     };
   }
 

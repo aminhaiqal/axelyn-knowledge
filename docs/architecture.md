@@ -2,7 +2,7 @@
 
 ## Service boundary
 
-Axelyn Knowledge owns sources, graph nodes and edges, extraction attempts, human review, revisions, retrieval activation, contradictions, usage, workspace isolation, and API identity. Operational records such as Signal pipeline runs, draft sessions, publication workflows, and deliveries remain in their source systems. Their only representation here is an immutable source identity and snapshot:
+Axelyn Knowledge owns sources, graph nodes and edges, extraction attempts, revisions, retrieval activation, contradictions, usage, workspace isolation, and API identity. Operational records such as Signal pipeline runs, draft sessions, publication workflows, and deliveries remain in their source systems. Their only representation here is an immutable source identity and snapshot:
 
 `workspace_id + source_system + source_type + external_id + source_version`
 
@@ -40,8 +40,8 @@ Route Handlers use current App Router request primitives. Operator forms use Ser
 ## Transaction boundaries
 
 - Ingestion commits the immutable source before any external model call.
-- Applying extracted proposals is one transaction: all nodes, edges, excerpts, versions, and the success record commit together or none do.
-- Approved revisions receive a deterministic `ARTIFACT` anchor, and every extracted reusable idea is connected to it with sourced `EXPRESSED_IN` provenance.
+- Applying extracted claims is one transaction: all nodes, edges, excerpts, versions, and the success record commit together or none do.
+- Under the current auto-activation policy, every extracted node—including the deterministic source anchor—is normalized to `CLAIM / ACTIVE`; approved-artifact ideas retain sourced `EXPRESSED_IN` provenance.
 - Review transitions write the current row and a new version together.
 - Merge locks both nodes, rejects known contradictions, copies provenance, preserves an alias, rewrites or archives affected edges, records versions, and emits an outbox event in one transaction.
 - Retrieval records the run, selected paths, score components, context pack, and initial `SUPPLIED` usage together.

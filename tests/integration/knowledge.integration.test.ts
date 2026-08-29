@@ -154,7 +154,7 @@ describe("source ingestion and extraction", () => {
     expect(results.map((result) => result.replayed).sort()).toEqual([false, true]);
   });
 
-  it("applies a valid extraction atomically and keeps approved copy unverified", async () => {
+  it("auto-activates a valid extraction as claims while keeping approved copy unverified", async () => {
     const source = await ingest(
       "axelyn",
       "approved-proof",
@@ -213,21 +213,25 @@ describe("source ingestion and extraction", () => {
     const result = await extraction.requestExtraction("axelyn", source.id, actor);
     expect(result.status).toBe("SUCCEEDED");
     const created = await query(
-      `SELECT origin, verification, lifecycle_status FROM knowledge_nodes ORDER BY title`,
+      `SELECT type, origin, verification, lifecycle_status FROM knowledge_nodes ORDER BY title`,
     );
     expect(created.rows).toHaveLength(3);
     expect(created.rows.every((row) => row.origin === "APPROVED_COPY")).toBe(true);
     expect(created.rows.every((row) => row.verification === "UNVERIFIED")).toBe(true);
-    expect(created.rows.every((row) => row.lifecycle_status === "PROPOSED")).toBe(true);
-    expect(
-      (await query(`SELECT count(*)::int AS count FROM knowledge_nodes WHERE type = 'ARTIFACT'`))
-        .rows[0].count,
-    ).toBe(1);
+    expect(created.rows.every((row) => row.type === "CLAIM")).toBe(true);
+    expect(created.rows.every((row) => row.lifecycle_status === "ACTIVE")).toBe(true);
     expect(
       (await query(`SELECT count(*)::int AS count FROM knowledge_node_sources`)).rows[0].count,
     ).toBe(3);
     expect(
       (await query(`SELECT count(*)::int AS count FROM knowledge_edge_sources`)).rows[0].count,
+    ).toBe(3);
+    expect(
+      (
+        await query(
+          `SELECT count(*)::int AS count FROM knowledge_edges WHERE lifecycle_status = 'ACTIVE'`,
+        )
+      ).rows[0].count,
     ).toBe(3);
     expect(
       (

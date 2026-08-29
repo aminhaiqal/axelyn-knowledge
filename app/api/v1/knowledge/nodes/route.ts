@@ -15,9 +15,12 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   return apiRoute(request, async ({ identity }) => {
-    const input = await parseJson(request, NodeCreateSchema);
-    resolveWorkspace(request, identity, input.workspace_id);
-    const node = await nodeService.create(input, `service:${identity.id}`);
+    const requested = await parseJson(request, NodeCreateSchema);
+    resolveWorkspace(request, identity, requested.workspace_id);
+    const node = await nodeService.create(
+      { ...requested, type: "CLAIM", lifecycle_status: "ACTIVE" },
+      `service:${identity.id}`,
+    );
     return Response.json(node, { status: 201 });
   });
 }

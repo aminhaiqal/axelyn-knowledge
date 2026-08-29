@@ -7,7 +7,7 @@ Axelyn Knowledge is a shared, provenance-aware associative memory service for Ax
 ```mermaid
 flowchart LR
   Signal[Axelyn Signal and other services] -->|Bearer API: immutable source snapshot| API[Next.js App Router API]
-  Operator[Operator through Cloudflare Access] -->|Review and correction| UI[Internal administration UI]
+  Operator[Operator through Cloudflare Access] -->|Capture and correction| UI[Internal administration UI]
   API --> Domain[Trust, provenance and review services]
   UI --> Domain
   Domain --> Extract[Provider-neutral extraction gateway]
@@ -29,10 +29,10 @@ Every node carries four independent labels:
 
 - Origin: who or what supplied the content.
 - Verification: whether a human or source supports the claim.
-- Lifecycle: whether knowledge is proposed, active, rejected, or archived.
+- Lifecycle: whether knowledge is active, rejected, archived, or retained in a legacy proposed state.
 - Sensitivity: the highest audience allowed to retrieve it.
 
-Approving a proof or node changes editorial lifecycle and usefulness only. It does **not** change `UNVERIFIED` to a verified state. Repeated use can change a capped usefulness score; it also never changes verification. Corrections create revisions or explicit contradictions/superseding relationships instead of erasing history.
+The current operator policy activates new knowledge immediately as `CLAIM / ACTIVE`; there is no human-review Inbox. Automatic activation does **not** change `UNVERIFIED` to a verified state. Repeated use can change a capped usefulness score; it also never changes verification. Corrections create revisions or explicit contradictions/superseding relationships instead of erasing history.
 
 ## Local setup
 
@@ -60,7 +60,7 @@ Open **Add knowledge** in the sidebar to create a source from:
 - PDF, TXT, Markdown, CSV, JSON, or HTML files up to 8 MB; or
 - one public web page or PDF URL.
 
-The console preserves readable source text as an immutable provenance record, then uses the configured extraction gateway to create atomic node and relationship proposals. By default, one OpenRouter key drives a cost-aware model cascade: Gemini 2.5 Flash Lite handles routine extraction, GPT-5 Mini retries output that fails schema or provenance validation, and Claude Sonnet 4.6 is the final quality fallback. Set `EXTRACTION_MODELS` to override that order or the legacy `EXTRACTION_MODEL` to force one model. Proposals remain `UNVERIFIED` and `PROPOSED` until reviewed in the **Inbox**. The operator-selected sensitivity is applied to every proposal from that import.
+The console preserves readable source text as an immutable provenance record, then uses the configured extraction gateway to create atomic claims and typed relationships. By default, one OpenRouter key drives a cost-aware model cascade: Gemini 2.5 Flash Lite handles routine extraction, GPT-5 Mini retries output that fails schema or provenance validation, and Claude Sonnet 4.6 is the final quality fallback. Set `EXTRACTION_MODELS` to override that order or the legacy `EXTRACTION_MODEL` to force one model. Extracted knowledge is stored immediately as `CLAIM / ACTIVE`; it remains `UNVERIFIED` unless the source carries an explicit verification assertion. The operator-selected sensitivity is applied to every claim from that import.
 
 PDF import supports text-based documents with up to 150 pages; image-only scans require OCR before upload. Website import fetches one public page without executing JavaScript or following links. Local and private network destinations are blocked. If extraction is not configured, the source is still saved and the failed attempt appears on the Register. Configure `EXTRACTION_API_KEY` (or `OPENROUTER_API_KEY`) to enable the default cascade.
 

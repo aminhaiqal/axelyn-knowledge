@@ -29,7 +29,7 @@ function providerResponse(model: string, sourceExcerpt: string) {
               nodes: [
                 {
                   temp_id: "evidence",
-                  type: "EVIDENCE",
+                  type: "CLAIM",
                   title: "Immutable evidence",
                   canonical_statement: "The immutable source contains exact evidence.",
                   metadata: {},
@@ -88,6 +88,9 @@ describe("OpenRouter extraction cascade", () => {
       data_collection: "deny",
     });
     expect(firstRequest.response_format.type).toBe("json_schema");
+    expect(
+      firstRequest.response_format.json_schema.schema.properties.nodes.items.properties.type.enum,
+    ).toEqual(["CLAIM"]);
     expect(
       firstRequest.response_format.json_schema.schema.properties.nodes.items.properties.metadata,
     ).toEqual({

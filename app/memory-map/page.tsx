@@ -59,7 +59,7 @@ export default async function MemoryMap({
 
       {!graph || !rootId ? (
         <EmptyState
-          description="Approve nodes and relationships in the inbox to form a neighborhood."
+          description="Add source material to activate claims and relationships automatically."
           title="No active graph exists yet."
         />
       ) : (

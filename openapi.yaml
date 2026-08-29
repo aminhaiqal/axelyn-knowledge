@@ -165,7 +165,7 @@ paths:
                   next_cursor: { type: [string, "null"] }
     post:
       tags: [Knowledge]
-      summary: Create an atomic knowledge proposal or node
+      summary: Create an automatically active atomic claim
       requestBody:
         required: true
         content:
@@ -523,13 +523,17 @@ components:
       required: [workspace_id, type, title, canonical_statement, origin]
       properties:
         workspace_id: { $ref: "#/components/schemas/WorkspaceId" }
-        type: { $ref: "#/components/schemas/NodeType" }
+        type:
+          allOf: [{ $ref: "#/components/schemas/NodeType" }]
+          description: Currently normalized to CLAIM by the service policy.
         title: { type: string, minLength: 1, maxLength: 240 }
         canonical_statement: { type: string, minLength: 1, maxLength: 4000 }
         metadata: { type: object, additionalProperties: true, default: {} }
         origin: { $ref: "#/components/schemas/Origin" }
         verification: { $ref: "#/components/schemas/Verification" }
-        lifecycle_status: { $ref: "#/components/schemas/Lifecycle" }
+        lifecycle_status:
+          allOf: [{ $ref: "#/components/schemas/Lifecycle" }]
+          description: Currently normalized to ACTIVE by the service policy.
         sensitivity: { $ref: "#/components/schemas/Sensitivity" }
         confidence: { type: number, minimum: 0, maximum: 1, default: 0.5 }
         importance: { type: number, minimum: 0, maximum: 1, default: 0.5 }

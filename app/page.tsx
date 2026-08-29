@@ -35,14 +35,14 @@ export default async function Dashboard({
       <PageHeader
         eyebrow="Memory register / live state"
         title="What the system currently remembers"
-        description="A trust-aware register of reusable knowledge, pending judgment, and failed extraction work. Editorial approval and factual verification remain separate here."
+        description="A trust-aware register of reusable claims and their source-grounded verification state. New knowledge activates immediately; factual verification remains explicit and separate."
         actions={
           <>
             <Link
               className={cn(buttonVariants({ size: "lg", variant: "outline" }), "px-4")}
-              href={`/inbox?workspace=${workspace}`}
+              href={`/knowledge?workspace=${workspace}`}
             >
-              Review inbox
+              Open library
             </Link>
             <Link
               className={cn(buttonVariants({ size: "lg" }), "px-4")}
@@ -55,9 +55,9 @@ export default async function Dashboard({
       />
 
       <section aria-label="Knowledge totals" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Total nodes" value={Number(totals.total ?? 0)} />
-        <MetricCard label="Awaiting review" value={Number(totals.proposed ?? 0)} />
-        <MetricCard label="Active memory" value={Number(totals.active ?? 0)} />
+        <MetricCard label="Total knowledge" value={Number(totals.total ?? 0)} />
+        <MetricCard label="Active claims" value={Number(totals.active_claims ?? 0)} />
+        <MetricCard label="Unverified claims" value={Number(totals.unverified_claims ?? 0)} />
         <MetricCard
           description="Failed extraction attempts still preserved at the source layer."
           label="Extraction failures"
@@ -71,16 +71,16 @@ export default async function Dashboard({
             action={
               <Link
                 className="text-sm font-medium text-slate-600 transition-colors hover:text-[#3557ff]"
-                href={`/inbox?workspace=${workspace}`}
+                href={`/knowledge?workspace=${workspace}`}
               >
-                Open full inbox
+                Open library
               </Link>
             }
-            eyebrow="Decision queue"
-            title="Oldest proposals first"
+            eyebrow="Active memory"
+            title="Recently activated claims"
           />
 
-          {dashboard.awaiting_review.length ? (
+          {dashboard.recent_knowledge.length ? (
             <Surface className="overflow-hidden">
               <Table>
                 <TableHeader>
@@ -97,7 +97,7 @@ export default async function Dashboard({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {dashboard.awaiting_review.map((node) => (
+                  {dashboard.recent_knowledge.map((node) => (
                     <TableRow key={String(node.id)} className="border-slate-200/70">
                       <TableCell className="px-6 py-5 align-top whitespace-normal">
                         <Link
@@ -123,8 +123,8 @@ export default async function Dashboard({
             </Surface>
           ) : (
             <EmptyState
-              description="New extraction and manual proposals will appear here."
-              title="The review queue is clear."
+              description="Add source material to extract and activate reusable claims."
+              title="No active claims yet."
             />
           )}
         </section>

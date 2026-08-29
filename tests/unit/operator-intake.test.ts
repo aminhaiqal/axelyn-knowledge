@@ -6,7 +6,10 @@ import {
   isPublicNetworkAddress,
   prepareUploadedFile,
 } from "@/src/services/operator-intake";
-import { applyOperatorIntakeSensitivity } from "@/src/services/source-service";
+import {
+  applyAutomaticClaimPolicy,
+  applyOperatorIntakeSensitivity,
+} from "@/src/services/source-service";
 
 describe("operator source intake", () => {
   it("extracts article text while discarding executable and navigational HTML", () => {
@@ -103,5 +106,31 @@ describe("operator source intake", () => {
     expect(applyOperatorIntakeSensitivity(source, output).nodes[0].sensitivity).toBe(
       "CONFIDENTIAL",
     );
+  });
+
+  it("normalizes every extracted knowledge node to a claim", () => {
+    const output = {
+      nodes: [
+        {
+          temp_id: "n1",
+          type: "EVIDENCE" as const,
+          title: "Evidence paths",
+          canonical_statement: "Reviewable systems expose evidence paths.",
+          metadata: {},
+          confidence: 0.8,
+          importance: 0.5,
+          salience: 0.5,
+          sensitivity: "INTERNAL" as const,
+          source_excerpt: "evidence paths",
+          suggested_duplicate_candidates: [],
+          potential_contradictions: [],
+          rationale: "The source supports this reusable statement.",
+        },
+      ],
+      edges: [],
+      audit_summary: "One statement extracted.",
+    };
+
+    expect(applyAutomaticClaimPolicy(output).nodes[0].type).toBe("CLAIM");
   });
 });

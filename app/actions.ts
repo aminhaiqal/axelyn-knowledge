@@ -131,12 +131,12 @@ export async function createNodeAction(formData: FormData) {
   const raw = Object.fromEntries(formData);
   const input = NodeCreateSchema.parse({
     workspace_id: raw.workspace_id,
-    type: raw.type,
+    type: "CLAIM",
     title: raw.title,
     canonical_statement: raw.canonical_statement,
     origin: "OPERATOR",
     verification: raw.verification,
-    lifecycle_status: "PROPOSED",
+    lifecycle_status: "ACTIVE",
     sensitivity: raw.sensitivity,
     confidence: Number(raw.confidence ?? 0.7),
     importance: Number(raw.importance ?? 0.5),
@@ -146,7 +146,6 @@ export async function createNodeAction(formData: FormData) {
   });
   await nodeService.create(input, operator.email);
   revalidatePath("/knowledge");
-  revalidatePath("/inbox");
 }
 
 export async function retryExtractionAction(formData: FormData) {
@@ -159,7 +158,6 @@ export async function retryExtractionAction(formData: FormData) {
     .parse(Object.fromEntries(formData));
   await sourceService.requestExtraction(input.workspace_id, input.source_id, operator.email);
   revalidatePath("/");
-  revalidatePath("/inbox");
   revalidatePath("/knowledge");
 }
 
