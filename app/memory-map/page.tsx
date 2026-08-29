@@ -65,7 +65,7 @@ export default async function MemoryMap({
       ) : (
         <>
           <Surface className="overflow-hidden p-4 sm:p-6">
-            <div className="overflow-hidden border border-[#dce3ed] bg-[#f8fafc] [background-image:radial-gradient(#d5dce7_0.8px,transparent_0.8px)] [background-size:16px_16px]">
+            <div className="overflow-hidden border border-[#dce3ed] bg-white">
               <svg
                 aria-labelledby="map-title map-description"
                 className="block min-h-[540px] w-full"

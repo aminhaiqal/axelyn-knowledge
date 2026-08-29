@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-export const surfaceClassName = "border border-[#dce3ed] bg-[#fcfcfd]";
+export const surfaceClassName = "border border-[#dce3ed] bg-white";
 
 export const insetSurfaceClassName = "border border-[#e1e7f0] bg-[#f7f9fc]";
 

@@ -55,7 +55,7 @@ export default async function NodeDetail({
         }
       />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_380px]">
+      <div className="space-y-6">
         <Surface className="p-6 sm:p-8">
           <div className="space-y-6">
             <div className="flex flex-wrap gap-2">
@@ -263,7 +263,7 @@ export default async function NodeDetail({
           </div>
         </Surface>
 
-        <aside className="space-y-6">
+        <section aria-label="Knowledge actions" className="space-y-6">
           <KnowledgeOperationPanel
             initialOperation={initialOperation}
             target={{
@@ -423,7 +423,7 @@ export default async function NodeDetail({
               </Button>
             </form>
           </Surface>
-        </aside>
+        </section>
       </div>
     </AdminShell>
   );

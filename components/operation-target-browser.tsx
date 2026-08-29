@@ -19,29 +19,35 @@ export function OperationTargetBrowser({
   workspace: string;
 }) {
   const verb = operation === "CHALLENGE" ? "Challenge" : "Extend";
+  const view = operation === "CHALLENGE" ? "challenge" : "extend";
   return (
-    <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
-      <Surface className="h-fit p-6 xl:sticky xl:top-24">
-        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-[#3557ff]">
-          01 / Retrieve a target
-        </p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-slate-950">
-          Find existing knowledge.
-        </h2>
-        <form className="mt-6 space-y-4" method="get">
-          <input name="workspace" type="hidden" value={workspace} />
-          <label className="block space-y-2 text-sm font-medium text-slate-800">
-            <span>Search statements</span>
-            <Input defaultValue={query} name="query" placeholder="What should be tested?" />
-          </label>
-          <button className={cn(buttonVariants({ size: "lg" }), "w-full")} type="submit">
-            Retrieve knowledge
-          </button>
-        </form>
-        <p className="mt-5 border-t border-[#dce3ed] pt-5 text-sm leading-6 text-slate-500">
-          Selecting a target does not change it. The model creates one separate {operation} record
-          and links the result back here.
-        </p>
+    <div className="space-y-6">
+      <Surface className="bg-white p-5 sm:p-6">
+        <div className="grid gap-6 lg:grid-cols-[minmax(240px,0.55fr)_minmax(0,1.45fr)] lg:items-end">
+          <div>
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-[#3557ff]">
+              01 / Retrieve a target
+            </p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-slate-950">
+              Find existing knowledge.
+            </h2>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-slate-500">
+              The target stays intact. One separate {operation} record is created and linked back to
+              it.
+            </p>
+          </div>
+          <form className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end" method="get">
+            <input name="workspace" type="hidden" value={workspace} />
+            <input name="view" type="hidden" value={view} />
+            <label className="block space-y-2 text-sm font-medium text-slate-800">
+              <span>Search statements</span>
+              <Input defaultValue={query} name="query" placeholder="What should be tested?" />
+            </label>
+            <button className={cn(buttonVariants({ size: "lg" }), "shrink-0")} type="submit">
+              Retrieve knowledge
+            </button>
+          </form>
+        </div>
       </Surface>
 
       <section className="space-y-3">

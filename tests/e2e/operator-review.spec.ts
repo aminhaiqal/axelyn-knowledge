@@ -34,6 +34,7 @@ test("an operator imports pasted source material through the guided intake", asy
   const title = `E2E interview notes ${suffix}`;
 
   await page.goto("/add?workspace=e2e");
+  await expect(page).toHaveURL(/\/?workspace=e2e&view=insert$/);
   await expect(page.getByLabel("Source name Optional")).toBeVisible();
   await page.getByLabel("Source name Optional").fill(title);
   await page
@@ -63,12 +64,16 @@ test("an operator can manage model access from settings", async ({ page }) => {
 
 test("challenge and extend expose target selection without an Inbox queue", async ({ page }) => {
   await page.goto("/challenge?workspace=e2e");
+  await expect(page).toHaveURL(/\/?workspace=e2e&view=challenge$/);
 
-  await expect(
-    page.getByRole("heading", { level: 1, name: "Challenge existing knowledge" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Challenge existing knowledge" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Inbox" })).toHaveCount(0);
-  await expect(page.locator("aside").getByRole("link", { name: /^Challenge/ })).toBeVisible();
-  await expect(page.locator("aside").getByRole("link", { name: /^Extend/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /^Dashboard/ })).toBeVisible();
+  const operations = page.getByRole("navigation", { name: "Knowledge operations" });
+  await expect(operations.getByRole("link", { name: /Challenge/ })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
+  await expect(operations.getByRole("link", { name: /Extend/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "Retrieve knowledge" })).toBeVisible();
 });

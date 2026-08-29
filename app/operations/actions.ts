@@ -31,8 +31,6 @@ export async function runKnowledgeOperationAction(
     revalidatePath("/");
     revalidatePath("/knowledge");
     revalidatePath(`/knowledge/${request.target_node_id}`);
-    revalidatePath("/challenge");
-    revalidatePath("/extend");
 
     return {
       status: "success",

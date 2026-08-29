@@ -53,7 +53,69 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
   const selected = channels.find((channel) => channel.id === kind)!;
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_360px]">
+    <div className="space-y-6">
+      <section aria-label="Insert contract" className="border border-[#dce3ed] bg-white">
+        <div className="grid md:grid-cols-4">
+          <div className="border-b border-[#dce3ed] px-5 py-5 md:col-span-2 md:border-r md:border-b-0 sm:px-6">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-[#3557ff]">
+              Insert contract / automatic
+            </p>
+            <h2 className="mt-3 text-xl font-semibold tracking-[-0.035em] text-slate-950">
+              Preserve, classify, activate.
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
+              Source text remains immutable. Classified records become active immediately and stay
+              unverified until evidence changes that state.
+            </p>
+          </div>
+          <div className="border-b border-[#dce3ed] px-5 py-5 md:border-r md:border-b-0 sm:px-6">
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+              Source
+            </p>
+            <p className="mt-3 text-sm font-semibold text-slate-950">{selected.label}</p>
+            <p className="mt-1 text-xs text-slate-500">Verification · Unverified</p>
+          </div>
+          <label className="block px-5 py-5 text-sm font-medium text-slate-800 sm:px-6">
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+              Sensitivity
+            </span>
+            <NativeSelect
+              aria-label="Sensitivity"
+              className="mt-3 bg-white text-xs"
+              onChange={(event) => setSensitivity(event.target.value)}
+              value={sensitivity}
+            >
+              {SENSITIVITY_LEVELS.map((level) => (
+                <option key={level}>{level}</option>
+              ))}
+            </NativeSelect>
+          </label>
+        </div>
+        <ol className="grid border-t border-[#dce3ed] bg-[#f7f9fc] md:grid-cols-3">
+          {[
+            ["01", "Preserve source", "Immutable text and provenance"],
+            ["02", "Classify records", "One of five INSERT types"],
+            ["03", "Activate knowledge", "Available now, still unverified"],
+          ].map(([step, title, description], index) => (
+            <li
+              className={cn(
+                "grid grid-cols-[32px_minmax(0,1fr)] gap-3 px-5 py-4",
+                index > 0 && "border-t border-[#dce3ed] md:border-t-0 md:border-l",
+              )}
+              key={step}
+            >
+              <span className="font-mono text-[10px] font-semibold tracking-[0.2em] text-[#3557ff]">
+                {step}
+              </span>
+              <span>
+                <strong className="block text-sm font-semibold text-slate-950">{title}</strong>
+                <span className="mt-1 block text-xs leading-5 text-slate-500">{description}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
       <Surface className="overflow-hidden">
         <div className="border-b border-[#dce3ed] px-6 py-5 sm:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -257,98 +319,6 @@ export function KnowledgeIntake({ workspace }: { workspace: string }) {
             </div>
           </form>
         </div>
-      </Surface>
-
-      <Surface className="border-[#242b37] bg-[#11151d] p-6 text-slate-100">
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-2">
-            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#3557ff]">
-              Pipeline
-            </p>
-            <h2 className="font-serif text-3xl leading-none tracking-tight">
-              Bounded extraction, immediate working memory.
-            </h2>
-          </div>
-          <span className="border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-            Automatic
-          </span>
-        </div>
-
-        <p className="mt-4 max-w-sm text-sm leading-7 text-slate-400">
-          The pipeline preserves the source, classifies bounded ideas, and activates them as active,
-          unverified knowledge.
-        </p>
-
-        <dl className="mt-8 space-y-4">
-          <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-              Workspace
-            </dt>
-            <dd className="text-right font-mono text-xs text-slate-100">{workspace}</dd>
-          </div>
-          <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-              Source
-            </dt>
-            <dd className="text-right font-mono text-xs text-slate-100">{selected.label}</dd>
-          </div>
-          <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-              Verification
-            </dt>
-            <dd className="text-right font-mono text-xs text-slate-100">Unverified</dd>
-          </div>
-          <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
-            <dt className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-              Sensitivity
-            </dt>
-            <dd className="min-w-[150px]">
-              <NativeSelect
-                aria-label="Sensitivity"
-                className="border-white/14 bg-white/8 text-xs text-slate-100 focus:border-[#3557ff] focus:ring-[#3557ff]/10"
-                onChange={(event) => setSensitivity(event.target.value)}
-                value={sensitivity}
-              >
-                {SENSITIVITY_LEVELS.map((level) => (
-                  <option key={level}>{level}</option>
-                ))}
-              </NativeSelect>
-            </dd>
-          </div>
-        </dl>
-
-        <div className="mt-8 space-y-5">
-          {[
-            ["01", "Preserve the source", "Immutable text and provenance"],
-            ["02", "Classify atomic records", "One of five INSERT types for each record"],
-            ["03", "Activate knowledge", "Available immediately, still unverified"],
-          ].map(([step, title, description], index) => (
-            <div className="relative flex gap-4 pl-1" key={step}>
-              {index < 2 ? (
-                <span className="absolute left-[11px] top-8 h-[calc(100%-1rem)] w-px bg-white/12" />
-              ) : null}
-              <span
-                className={cn(
-                  "relative z-10 flex size-6 shrink-0 items-center justify-center border font-mono text-[10px]",
-                  index === 0
-                    ? "border-[#3557ff] bg-[#3557ff] text-white"
-                    : "border-white/14 bg-[#142033] text-slate-300",
-                )}
-              >
-                {step}
-              </span>
-              <div className="space-y-1 pb-4">
-                <p className="text-sm font-semibold text-slate-100">{title}</p>
-                <p className="text-sm leading-6 text-slate-400">{description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <p className="mt-4 border-t border-dashed border-white/12 pt-4 text-sm leading-6 text-slate-400">
-          Website content is treated as untrusted source material. The importer never follows page
-          instructions or crawls linked pages.
-        </p>
       </Surface>
     </div>
   );

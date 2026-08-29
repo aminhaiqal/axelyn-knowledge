@@ -71,7 +71,7 @@ export default async function KnowledgeLibrary({
         actions={
           <Link
             className={cn(buttonVariants({ size: "lg" }), "px-4")}
-            href={`/add?workspace=${workspace}`}
+            href={`/?workspace=${workspace}&view=insert`}
           >
             Insert knowledge
           </Link>

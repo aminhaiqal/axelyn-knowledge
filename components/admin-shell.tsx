@@ -3,17 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
-import {
-  GitBranchPlus,
-  LibraryBig,
-  Menu,
-  MoveUpRight,
-  Orbit,
-  Plus,
-  Search,
-  Settings2,
-  Sparkles,
-} from "lucide-react";
+import { LayoutDashboard, LibraryBig, Menu, Orbit, Plus, Settings2 } from "lucide-react";
 import type { OperatorIdentity } from "@/src/auth/operator-auth";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -29,27 +19,9 @@ import { Separator } from "@/components/ui/separator";
 const navigation = [
   {
     href: "/",
-    label: "Register",
-    detail: "Live system state",
-    icon: Sparkles,
-  },
-  {
-    href: "/add",
-    label: "Insert",
-    detail: "FACT · OBSERVATION · +3",
-    icon: GitBranchPlus,
-  },
-  {
-    href: "/challenge",
-    label: "Challenge",
-    detail: "CLAIM · EVIDENCE · HYPOTHESIS",
-    icon: Search,
-  },
-  {
-    href: "/extend",
-    label: "Extend",
-    detail: "ARGUMENT · INSIGHT",
-    icon: MoveUpRight,
+    label: "Dashboard",
+    detail: "Register · Insert · Challenge · Extend",
+    icon: LayoutDashboard,
   },
   {
     href: "/knowledge",
@@ -171,7 +143,7 @@ export function AdminShell({
               buttonVariants({ size: "lg", variant: "secondary" }),
               "mt-8 w-full justify-between border-white/10 px-4",
             )}
-            href={`/add?workspace=${workspace}`}
+            href={`/?workspace=${workspace}&view=insert`}
           >
             Insert knowledge
             <Plus className="size-4" />
@@ -206,9 +178,9 @@ export function AdminShell({
         </div>
       </aside>
 
-      <main className="min-w-0 flex-1 bg-[length:40px_40px] [background-image:linear-gradient(to_right,rgba(20,25,35,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(20,25,35,0.04)_1px,transparent_1px)]">
+      <main className="min-w-0 flex-1 bg-white">
         <Sheet onOpenChange={setNavOpen} open={navOpen}>
-          <div className="sticky top-0 z-30 border-b border-[#dce3ed] bg-[#f7f9fc]/92 backdrop-blur-xl">
+          <div className="sticky top-0 z-30 border-b border-[#dce3ed] bg-white/95 backdrop-blur-xl">
             <div className="mx-auto flex max-w-[1680px] items-center gap-3 px-4 py-5 sm:px-6 lg:px-8">
               <Button
                 className="lg:hidden"
@@ -255,7 +227,7 @@ export function AdminShell({
                   buttonVariants({ size: "lg", variant: "secondary" }),
                   "mb-6 w-full justify-between border-white/10 px-4",
                 )}
-                href={`/add?workspace=${workspace}`}
+                href={`/?workspace=${workspace}&view=insert`}
                 onClick={() => setNavOpen(false)}
               >
                 New knowledge
@@ -279,7 +251,7 @@ export function AdminShell({
           </SheetContent>
         </Sheet>
 
-        <div className="mx-auto flex max-w-[1680px] flex-col gap-10 px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-[1680px] flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
           {children}
         </div>
       </main>

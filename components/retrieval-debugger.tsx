@@ -17,8 +17,8 @@ export function RetrievalDebugger({ workspace }: { workspace: string }) {
   const result = state.result;
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
-      <Surface className="h-fit p-6 xl:sticky xl:top-24">
+    <div className="space-y-6">
+      <Surface className="p-6">
         <div className="space-y-6">
           <SectionHeader eyebrow="Retrieval constraints" title="Activate working memory" />
 

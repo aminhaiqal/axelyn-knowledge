@@ -56,7 +56,7 @@
 
   --radius: 0px;
 
-  --background: #f5f7fa;
+  --background: #ffffff;
   --foreground: #141923;
   --card: #fcfcfd;
   --card-foreground: #141923;
@@ -101,10 +101,6 @@ body {
   margin: 0;
   min-height: 100vh;
   background-color: var(--background);
-  background-image:
-    linear-gradient(to right, rgb(20 25 35 / 4%) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(20 25 35 / 4%) 1px, transparent 1px);
-  background-size: 40px 40px;
   color: var(--foreground);
 }
 

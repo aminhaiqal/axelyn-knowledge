@@ -82,7 +82,7 @@ export function ProviderSettingsForm({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+    <div className="space-y-6">
       <Surface className="overflow-hidden">
         <div className="border-b border-[#dce3ed] px-6 py-6 sm:px-8">
           <SectionHeader

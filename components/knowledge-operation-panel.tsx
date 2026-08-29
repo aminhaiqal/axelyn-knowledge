@@ -46,7 +46,7 @@ export function KnowledgeOperationPanel({
       <div className="grid grid-cols-3 border-b border-white/10">
         <Link
           className="border-r border-white/10 px-3 py-4 text-center font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 transition-colors hover:bg-white/[0.04] hover:text-white"
-          href={`/add?workspace=${workspace}`}
+          href={`/?workspace=${workspace}&view=insert`}
         >
           Insert
         </Link>
